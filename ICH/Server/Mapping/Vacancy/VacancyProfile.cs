@@ -9,6 +9,7 @@ namespace ICH.Server.Mapping.Vacancy
         public VacancyProfile()
         {
             CreateMap<VacancyViewModel, VacancyDTO>().ReverseMap();
+            CreateMap<EmploymentTypeViewModel, EmploymentTypeDTO>().ReverseMap();
         }
     }
 }

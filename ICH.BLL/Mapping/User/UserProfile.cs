@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using ICH.BLL.DTOs.User;
+using ICH.DAL.Entities.User;
 
 namespace ICH.BLL.Mapping.User
 {
@@ -8,6 +9,9 @@ namespace ICH.BLL.Mapping.User
         public UserProfile()
         {
             CreateMap<ICH.DAL.Entities.User.User, UserDTO>().ReverseMap();
+            CreateMap<CV, CVDTO>().ReverseMap();
+            CreateMap<UserInfo, UserInfoDTO>().ReverseMap();
+            CreateMap<UserType, UserTypeDTO>().ReverseMap();
         }
     }
 }
