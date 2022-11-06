@@ -25,7 +25,7 @@ builder.Services.AddScoped<IVacancyService, VacancyService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 
