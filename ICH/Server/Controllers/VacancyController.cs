@@ -28,7 +28,7 @@ namespace ICH.Server.Controllers
         [HttpGet("Vacancies")]
         public async Task<IActionResult> GetAllVacancies()
         {
-            var vacancies = await _vacancyService.GetAllVacancies();
+            var vacancies = await _vacancyService.GetAllVacanciesAsync();
 
             return Ok(vacancies);
         }
