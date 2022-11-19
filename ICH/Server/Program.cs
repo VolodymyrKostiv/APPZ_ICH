@@ -1,5 +1,7 @@
+using ICH.BLL.Interfaces.Logger;
 using ICH.BLL.Interfaces.User;
 using ICH.BLL.Interfaces.Vacancy;
+using ICH.BLL.Services.Logger;
 using ICH.BLL.Services.User;
 using ICH.BLL.Services.Vacancy;
 using ICH.DAL;
@@ -8,10 +10,11 @@ using ICH.DAL.Repositories.Interfaces.Vacancy;
 using ICH.DAL.Repositories.Realizations.User;
 using ICH.DAL.Repositories.Realizations.Vacancy;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.ResponseCompression;
-using Microsoft.Extensions.Configuration;
+using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nlog.config"));
 
 // Add services to the container.
 
@@ -22,10 +25,12 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IVacancyRepository, VacancyRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVacancyService, VacancyService>();
+builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 
 var app = builder.Build();
 
