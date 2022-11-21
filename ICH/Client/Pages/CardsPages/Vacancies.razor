@@ -5,6 +5,37 @@
 @using System.Text.Json;
 
 @inject HttpClient Http
+<div class="parent">
+    <div class="row justify-content-around">
+        <div class="col-3">
+            <HxSearchBox DataProvider="ProvideSearchResults"
+                         TItem="VacancyViewModel"
+                         ItemTitleSelector="i => i.Title"
+                         ItemSubtitleSelector="i => i.Company"
+                         Placeholder="Посада або ім'я"
+                         OnTextQueryTriggered="OnTextQueryTriggered">
+                <NotFoundTemplate>
+                    <div class="small py-2 px-3 text-muted"><HxIcon CssClass="me-2" Icon="BootstrapIcon.EmojiFrown" />Sorry, I did not find that...</div>
+                </NotFoundTemplate>
+            </HxSearchBox>
+        </div>
+        <div class="col-3">
+            <HxDropdownButtonGroup>
+                <HxDropdownToggleButton Color="ThemeColor.None">Вся Україна</HxDropdownToggleButton>
+                <HxDropdownMenu CssClass="dropdown-menu-light">
+                    <HxDropdownItemNavLink Href="#">Київ</HxDropdownItemNavLink>
+                    <HxDropdownItemNavLink Href="#">Львів</HxDropdownItemNavLink>
+                    <HxDropdownItemNavLink Href="#">Івано-Франківськ</HxDropdownItemNavLink>
+                    <HxDropdownItemNavLink Href="#">Харків</HxDropdownItemNavLink>
+                    <HxDropdownItemNavLink Href="#">Херсон</HxDropdownItemNavLink>
+                </HxDropdownMenu>
+            </HxDropdownButtonGroup>
+        </div>
+        <div class="col-3">
+            <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="async () => await Task.Delay(2000)" />
+        </div>
+    </div>
+</div>
 
 <div class="container">
     @if (_vacancies != null)
@@ -48,5 +79,20 @@
         var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         _vacancies = vacancies;
+    }
+
+    private string triggeredTextQuery;
+    private void OnTextQueryTriggered(string text) // йде сюди коли нажимаємо ентер у серч філді
+    {
+        triggeredTextQuery = text;
+    }
+    
+    private async Task<SearchBoxDataProviderResult<VacancyViewModel>> ProvideSearchResults(SearchBoxDataProviderRequest request)
+    {
+        await Task.Delay(400);
+        return new()
+            {
+               Data = _vacancies.Where(i => i.Title.Contains(request.UserInput, StringComparison.OrdinalIgnoreCase))
+            };
     }
 }
