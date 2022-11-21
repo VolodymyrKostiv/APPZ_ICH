@@ -7,6 +7,7 @@ namespace ICH.DAL.Repositories.Realizations.Vacancy
     {
         public VacancyRepository(ICHDBContext dbcontext) : base(dbcontext)
         {
+       
         }
     }
 }

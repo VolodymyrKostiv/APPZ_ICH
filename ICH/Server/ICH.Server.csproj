@@ -28,6 +28,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ICH.BLL\ICH.BLL.csproj" />
     <ProjectReference Include="..\Client\ICH.Client.csproj" />
+    <ProjectReference Include="..\ICH.CommonModels\ICH.CommonModels.csproj" />
     <ProjectReference Include="..\Shared\ICH.Shared.csproj" />
   </ItemGroup>
 

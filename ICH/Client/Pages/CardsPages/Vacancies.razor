@@ -9,20 +9,24 @@
 <div class="container">
     @if (_vacancies != null)
     {
-        @foreach (var vacancy in _vacancies)
-        {
-            <div class="row mt-2">
-                <HxCard>
-                    <BodyTemplate>
-                        <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
-                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
-                        <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
-                        <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
-                        <HxCardText>@vacancy.Description</HxCardText>
-                    </BodyTemplate>
-                </HxCard>
-            </div>
-        }
+        <div style="height: 800px; overflow-y: scroll;">
+            <Virtualize Items="@_vacancies" Context="vacancy">
+                @foreach (var vacancy in _vacancies)
+                {
+                    <div class="row mt-2">
+                        <HxCard>
+                            <BodyTemplate>
+                                <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
+                                <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
+                                <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
+                                <HxCardText>@vacancy.Description</HxCardText>
+                            </BodyTemplate>
+                        </HxCard>
+                    </div>
+                }
+            </Virtualize>
+        </div>
     }
     else
     {
@@ -31,7 +35,7 @@
 </div>
 
 @code {
-    private IEnumerable<VacancyViewModel> _vacancies;
+    private ICollection<VacancyViewModel> _vacancies;
 
     protected override async Task OnInitializedAsync()
     {
@@ -47,6 +51,6 @@
 
         var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-        _vacancies = vacancies;
+        _vacancies = vacancies.ToList();
     }
 }
