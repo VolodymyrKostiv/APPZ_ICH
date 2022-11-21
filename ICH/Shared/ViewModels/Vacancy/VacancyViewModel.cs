@@ -1,6 +1,6 @@
-﻿using ICH.Server.ViewModels.User;
+﻿using ICH.Shared.ViewModels.User;
 
-namespace ICH.Server.ViewModels.Vacancy
+namespace ICH.Shared.ViewModels.Vacancy
 {
     public class VacancyViewModel
     {

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ICH.Server.ViewModels.Vacancy
+﻿namespace ICH.Shared.ViewModels.Vacancy
 {
     public class EmploymentTypeViewModel
     {

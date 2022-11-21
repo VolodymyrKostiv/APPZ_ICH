@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ICH.BLL.DTOs.Vacancy;
-using ICH.Server.ViewModels.Vacancy;
+using ICH.Shared.ViewModels.Vacancy;
 
 namespace ICH.Server.Mapping.Vacancy
 {

@@ -1,16 +1,9 @@
-using ICH.BLL.Interfaces.Logger;
-using ICH.BLL.Interfaces.User;
-using ICH.BLL.Interfaces.Vacancy;
-using ICH.BLL.Services.Logger;
-using ICH.BLL.Services.User;
-using ICH.BLL.Services.Vacancy;
 using ICH.DAL;
-using ICH.DAL.Repositories.Interfaces.User;
-using ICH.DAL.Repositories.Interfaces.Vacancy;
-using ICH.DAL.Repositories.Realizations.User;
-using ICH.DAL.Repositories.Realizations.Vacancy;
+using ICH.Server;
 using Microsoft.EntityFrameworkCore;
 using NLog;
+using Newtonsoft.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,17 +14,14 @@ LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), "/nl
 builder.Services.AddDbContext<ICHDBContext>(opt => opt.UseSqlServer
     (builder.Configuration.GetConnectionString("ICHConnection")));
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IVacancyRepository, VacancyRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IVacancyService, VacancyService>();
-builder.Services.AddSingleton<ILoggerManager, LoggerManager>();
+builder.Services.AddAppServices();
 
-builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-
+builder.Services.AddControllers().AddNewtonsoftJson(s => {
+    s.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    s.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -52,6 +42,11 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseCors(options => options
+            .WithOrigins("http://localhost:7040")
+            .AllowAnyMethod()
+            .AllowAnyHeader());
 
 
 app.MapRazorPages();

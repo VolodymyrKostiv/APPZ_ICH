@@ -79,3 +79,11 @@ main {
         padding-right: 1.5rem !important;
     }
 }
+
+.headerBackground {
+    padding-left: 25px;
+    padding-right: 25px;
+    padding-top: 40px;
+    padding-bottom: 15px;
+    background-color: blue;
+}

@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICH.DAL", "..\ICH.DAL\ICH.D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICH.BLL", "..\ICH.BLL\ICH.BLL.csproj", "{26882C4B-C275-4571-84D1-B0DBAFD222F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICH.UnitTests", "..\ICH.UnitTests\ICH.UnitTests.csproj", "{2D4A8DAC-514F-42F8-8178-9E06BF4DEA2B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ICH.UnitTests", "..\ICH.UnitTests\ICH.UnitTests.csproj", "{2D4A8DAC-514F-42F8-8178-9E06BF4DEA2B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

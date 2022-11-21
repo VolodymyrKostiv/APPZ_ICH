@@ -1,0 +1,47 @@
+﻿@page "/"
+
+@using ICH.Client.API;
+@using ICH.Shared.ViewModels.Vacancy;
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-4">
+            <h2>Login</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">TRP</HxButton>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <HxButton OnClick="OnWorkerLoginClicked" Color="ThemeColor.Primary">Worker</HxButton>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Organization</HxButton>
+        </div>
+    </div>
+</div>
+
+@code {
+    public async Task OnTRPLoginClicked()
+    {
+        NavigationManager.NavigateTo(VacanciesLinks.Vacancies);
+    }
+
+    public async Task OnWorkerLoginClicked()
+    {
+
+    }
+
+    public async Task OnOrgLoginClicked()
+    {
+
+    }
+}

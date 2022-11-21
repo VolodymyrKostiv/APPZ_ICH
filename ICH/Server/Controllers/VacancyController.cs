@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using ICH.BLL.DTOs.Vacancy;
 using ICH.BLL.Interfaces.Vacancy;
+using ICH.Shared.ViewModels.Vacancy;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ICH.Server.Controllers
@@ -25,12 +27,14 @@ namespace ICH.Server.Controllers
         /// </summary>
         /// <returns>List of vacancies</returns>
         /// <response code="200">Successful operation</response>
-        [HttpGet("Vacancies")]
+        [HttpGet("AllVacancies")]
         public async Task<IActionResult> GetAllVacancies()
         {
             var vacancies = await _vacancyService.GetAllVacanciesAsync();
 
-            return Ok(vacancies);
+            var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>, IEnumerable<VacancyViewModel>>(vacancies);
+
+            return Ok(mappedVacancies);
         }
 
 

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ICH.BLL.DTOs.User;
-using ICH.Server.ViewModels.User;
+using ICH.Shared.ViewModels.User;
 
 namespace ICH.Server.Mapping.User
 {

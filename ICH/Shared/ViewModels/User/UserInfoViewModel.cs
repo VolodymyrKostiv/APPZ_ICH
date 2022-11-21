@@ -1,4 +1,4 @@
-﻿namespace ICH.Server.ViewModels.User
+﻿namespace ICH.Shared.ViewModels.User
 {
     public class UserInfoViewModel
     {
