@@ -1,4 +1,7 @@
 ﻿using ICH.BLL.DTOs.User;
+using ICH.DAL.Entities.General;
+using ICH.DAL.Entities.Vacancy;
+using System.ComponentModel.DataAnnotations;
 
 namespace ICH.BLL.DTOs.Vacancy
 {
@@ -7,11 +10,12 @@ namespace ICH.BLL.DTOs.Vacancy
         public int VacancyId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public string Location { get; set; }
+        public LocationDTO? Location { get; set; }
         public DateTime CreationTime { get; set; }
-        public int Salary { get; set; }
-        public string Company { get; set; }
+        public int? Salary { get; set; }
+        public string? Company { get; set; }
         public EmploymentTypeDTO EmploymentType { get; set; }
         public UserDTO User { get; set; }
+        public ICollection<SpecialCategoryDTO> SpecialCategories { get; set; }
     }
 }

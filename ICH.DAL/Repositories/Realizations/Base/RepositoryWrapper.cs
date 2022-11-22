@@ -12,6 +12,11 @@ namespace ICH.DAL.Repositories.Realizations.Base
 
         private IUserRepository _user;
         private IVacancyRepository _vacancy;
+        private ICategoryRepository _category;
+        private IEmploymentTypeRepository _employmentType;
+        private ILocationRepository _location;
+        private ISpecialCategoryRepository _specialCategory;
+        private IWorkTypeRepository _workType;
 
         public IUserRepository UserRepository
         {
@@ -36,6 +41,70 @@ namespace ICH.DAL.Repositories.Realizations.Base
                 }
 
                 return _vacancy;
+            }
+        }
+
+        public ICategoryRepository CategoryRepository
+        {
+            get
+            {
+                if (_category == null)
+                {
+                    _category = new CategoryRepository(_dbContext);
+                }
+
+                return _category;
+            }
+        }
+        public ISpecialCategoryRepository SpecialCategoryRepository
+        {
+            get
+            {
+                if (_specialCategory == null)
+                {
+                    _specialCategory = new SpecialCategoryRepository(_dbContext);
+                }
+
+                return _specialCategory;
+            }
+        }
+
+        public IEmploymentTypeRepository EmploymentTypeRepository
+        {
+            get
+            {
+                if (_employmentType == null)
+                {
+                    _employmentType = new EmploymentTypeRepository(_dbContext);
+                }
+
+                return _employmentType;
+            }
+        }
+
+        public ILocationRepository LocationRepository
+        {
+            get
+            {
+                if (_location == null)
+                {
+                    _location = new LocationRepository(_dbContext);
+                }
+
+                return _location;
+            }
+        }
+
+        public IWorkTypeRepository WorkTypeRepository
+        {
+            get
+            {
+                if (_workType == null)
+                {
+                    _workType = new WorkTypeRepository(_dbContext);
+                }
+
+                return _workType;
             }
         }
 

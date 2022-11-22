@@ -19,9 +19,17 @@ namespace ICH.Server
         {
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IVacancyRepository, VacancyRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<IEmploymentTypeRepository, EmploymentTypeRepository>();
+            services.AddScoped<ILocationRepository, LocationRepository>();
+            services.AddScoped<ISpecialCategoryRepository, SpecialCategoryRepository>();
+            services.AddScoped<IWorkTypeRepository, WorkTypeRepository>();
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IVacancyService, VacancyService>();
+            
             services.AddSingleton<ILoggerManager, LoggerManager>();
+            
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
 
             return services;

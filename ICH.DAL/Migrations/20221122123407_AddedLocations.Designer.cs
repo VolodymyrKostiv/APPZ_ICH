@@ -4,6 +4,7 @@ using ICH.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ICH.DAL.Migrations
 {
     [DbContext(typeof(ICHDBContext))]
-    partial class ICHDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221122123407_AddedLocations")]
+    partial class AddedLocations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -88,7 +90,17 @@ namespace ICH.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Experience")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int?>("LocationId")
                         .HasColumnType("int");
@@ -184,6 +196,7 @@ namespace ICH.DAL.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Company")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreationTime")
@@ -196,10 +209,14 @@ namespace ICH.DAL.Migrations
                     b.Property<int>("EmploymentTypeId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int?>("LocationId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("Salary")
+                    b.Property<int>("Salary")
                         .HasColumnType("int");
 
                     b.Property<string>("Title")
@@ -285,7 +302,7 @@ namespace ICH.DAL.Migrations
 
             modelBuilder.Entity("ICH.DAL.Entities.User.UserInfo", b =>
                 {
-                    b.HasOne("ICH.DAL.Entities.General.Location", "Location")
+                    b.HasOne("ICH.DAL.Entities.General.Location", null)
                         .WithMany("UserInfos")
                         .HasForeignKey("LocationId");
 
@@ -294,8 +311,6 @@ namespace ICH.DAL.Migrations
                         .HasForeignKey("ICH.DAL.Entities.User.UserInfo", "UserInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Location");
 
                     b.Navigation("User");
                 });
@@ -312,7 +327,7 @@ namespace ICH.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ICH.DAL.Entities.General.Location", "Location")
+                    b.HasOne("ICH.DAL.Entities.General.Location", null)
                         .WithMany("Vacancies")
                         .HasForeignKey("LocationId");
 
@@ -327,8 +342,6 @@ namespace ICH.DAL.Migrations
                         .HasForeignKey("WorkTypeId");
 
                     b.Navigation("EmploymentType");
-
-                    b.Navigation("Location");
 
                     b.Navigation("User");
                 });

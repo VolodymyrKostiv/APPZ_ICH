@@ -8,28 +8,10 @@
 <div class="parent">
     <div class="row justify-content-around">
         <div class="col-3">
-            <HxSearchBox DataProvider="ProvideSearchResults"
-                         TItem="VacancyViewModel"
-                         ItemTitleSelector="i => i.Title"
-                         ItemSubtitleSelector="i => i.Company"
-                         Placeholder="Посада або ім'я"
-                         OnTextQueryTriggered="OnTextQueryTriggered">
-                <NotFoundTemplate>
-                    <div class="small py-2 px-3 text-muted"><HxIcon CssClass="me-2" Icon="BootstrapIcon.EmojiFrown" />Sorry, I did not find that...</div>
-                </NotFoundTemplate>
-            </HxSearchBox>
+            <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
         </div>
         <div class="col-3">
-            <HxDropdownButtonGroup>
-                <HxDropdownToggleButton Color="ThemeColor.None">Вся Україна</HxDropdownToggleButton>
-                <HxDropdownMenu CssClass="dropdown-menu-light">
-                    <HxDropdownItemNavLink Href="#">Київ</HxDropdownItemNavLink>
-                    <HxDropdownItemNavLink Href="#">Львів</HxDropdownItemNavLink>
-                    <HxDropdownItemNavLink Href="#">Івано-Франківськ</HxDropdownItemNavLink>
-                    <HxDropdownItemNavLink Href="#">Харків</HxDropdownItemNavLink>
-                    <HxDropdownItemNavLink Href="#">Херсон</HxDropdownItemNavLink>
-                </HxDropdownMenu>
-            </HxDropdownButtonGroup>
+            <HxSelect Data="_cities" InputGroupStartText="Місто" @bind-Value="SelectedCity" Nullable="true" NullText="Вся Україна" TItem="string" TValue="string" TextSelector="@(p => p)" ValueSelector="@(p => p)" />
         </div>
         <div class="col-3">
             <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="async () => await Task.Delay(2000)" />
@@ -38,38 +20,66 @@
 </div>
 
 <div class="container">
-    @if (_vacancies != null)
-    {
-        <div style="height: 800px; overflow-y: scroll;">
-            <Virtualize Items="@_vacancies" Context="vacancy">
-                @foreach (var vacancy in _vacancies)
-                {
-                    <div class="row mt-2">
-                        <HxCard>
-                            <BodyTemplate>
-                                <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
-                                <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
-                                <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
-                                <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
-                                <HxCardText>@vacancy.Description</HxCardText>
-                            </BodyTemplate>
-                        </HxCard>
-                    </div>
-                }
-            </Virtualize>
+    <div class="row">
+        <div class="col-9">
+            @if (_vacancies != null)
+            {
+                <div style="height: 800px; overflow-y: scroll;">
+                    <Virtualize Items="@_vacancies" Context="vacancy">
+                        @foreach (var vacancy in _vacancies)
+                        {
+                            <div class="row mt-2">
+                                <HxCard>
+                                    <BodyTemplate>
+                                        <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
+                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                        <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
+                                        <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
+                                        <HxCardText>@vacancy.Description</HxCardText>
+                                    </BodyTemplate>
+                                </HxCard>
+                            </div>
+                        }
+                    </Virtualize>
+                </div>
+            }
+            else
+            {
+                <HxSpinner Color="ThemeColor.Primary" />
+            }
         </div>
-    }
-    else
-    {
-        <HxSpinner Color="ThemeColor.Primary" />
-    }
+        <div class="col-3">
+            <div class="row">
+                <HxCheckboxList TItem="string" TValue="string" Label="Категорія" >
+
+                </HxCheckboxList>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
     private ICollection<VacancyViewModel> _vacancies;
+    private string SearchName { get; set; }
+
+    private List<string> _cities;
+    private string SelectedCity { get; set; }
+
+    private List<string> _categories;
+    private List<string> SelectedCategories;
 
     protected override async Task OnInitializedAsync()
     {
+        _cities = new List<string>()
+        {
+            "Львів", "Київ", "Івано-Франківськ", "Вінниця"
+        };
+
+        _categories = new List<string>()
+        {
+            "Сфера обслу"
+        };
+
         await GetAllVacancies();
         base.OnInitialized();
     }
@@ -83,20 +93,5 @@
         var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         _vacancies = vacancies.ToList();
-    }
-
-    private string triggeredTextQuery;
-    private void OnTextQueryTriggered(string text) // йде сюди коли нажимаємо ентер у серч філді
-    {
-        triggeredTextQuery = text;
-    }
-    
-    private async Task<SearchBoxDataProviderResult<VacancyViewModel>> ProvideSearchResults(SearchBoxDataProviderRequest request)
-    {
-        await Task.Delay(400);
-        return new()
-            {
-               Data = _vacancies.Where(i => i.Title.Contains(request.UserInput, StringComparison.OrdinalIgnoreCase))
-            };
     }
 }

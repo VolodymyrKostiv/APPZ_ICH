@@ -2,11 +2,11 @@
 
 namespace ICH.DAL.Entities.Vacancy
 {
-    public class EmploymentType
+    public class WorkType
     {
         [Key]
-        public int EmploymentTypeId { get; set; }
-        [MaxLength(20)]
+        public int WorkTypeId { get; set; }
+        [MaxLength(30)]
         public string Title { get; set; }
         public ICollection<Vacancy> Vacancies { get; set; }
     }
