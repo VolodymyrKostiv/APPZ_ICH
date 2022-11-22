@@ -2,6 +2,7 @@
 using ICH.BLL.DTOs.User;
 using ICH.BLL.Interfaces.User;
 using ICH.DAL.Repositories.Interfaces.Base;
+using Microsoft.EntityFrameworkCore;
 
 namespace ICH.BLL.Services.User
 {
@@ -16,14 +17,36 @@ namespace ICH.BLL.Services.User
             _mapper = mapper;
         }
 
-        public Task<IEnumerable<UserDTO>> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
         {
-            throw new NotImplementedException();
+            var users = await _repoWrapper.UserRepository.GetAllAsync(
+                include: source => source.Include(x => x.UserInfo));
+
+            var mappedUsers = _mapper.Map<IEnumerable<UserDTO>>(users);
+
+            return mappedUsers;
         }
 
-        public Task<UserDTO> GetUserByIdAsync(int id)
+        public async Task<UserDTO> GetUserByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var user = await _repoWrapper.UserRepository.GetFirstOrDefaultAsync(
+                include: source => source.Include(x => x.UserInfo),
+                predicate: p => p.UserId == id);
+
+            var mappedUser = _mapper.Map<UserDTO>(user);
+
+            return mappedUser;
+        }
+
+        public async Task<UserDTO> GetUserByUserType(UserTypeDTO type)
+        {
+            var user = await _repoWrapper.UserRepository.GetFirstOrDefaultAsync(
+                include: source => source.Include(x => x.UserInfo),
+                predicate: p => p.UserType.UserTypeId == type.UserTypeId);
+
+            var mappedUser = _mapper.Map<UserDTO>(user);
+
+            return mappedUser;
         }
     }
 }

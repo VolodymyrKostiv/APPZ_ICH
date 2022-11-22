@@ -9,7 +9,6 @@ namespace ICH.BLL.Mapping.User
         public UserProfile()
         {
             CreateMap<ICH.DAL.Entities.User.User, UserDTO>().ReverseMap();
-            CreateMap<CV, CVDTO>().ReverseMap();
             CreateMap<UserInfo, UserInfoDTO>().ReverseMap();
             CreateMap<UserType, UserTypeDTO>().ReverseMap();
         }

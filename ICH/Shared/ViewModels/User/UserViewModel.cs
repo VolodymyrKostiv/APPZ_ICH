@@ -8,7 +8,7 @@ namespace ICH.Shared.ViewModels.User
         public string Login { get; set; }
         public string Password { get; set; }
         public UserTypeViewModel UserType { get; set; }
-        public virtual UserInfoViewModel UserInfo { get; set; }
+        public UserInfoViewModel UserInfo { get; set; }
         public ICollection<VacancyViewModel> Vacancies { get; set; }
     }
 }

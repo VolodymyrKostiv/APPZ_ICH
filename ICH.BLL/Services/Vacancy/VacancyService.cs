@@ -4,7 +4,6 @@ using ICH.BLL.Interfaces.Vacancy;
 using ICH.CommonModels.Filters.Vacancy;
 using ICH.DAL.Repositories.Interfaces.Base;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 
 namespace ICH.BLL.Services.Vacancy
 {
@@ -28,6 +27,24 @@ namespace ICH.BLL.Services.Vacancy
             return _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
         }
 
+        public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
+        {
+            var categories = await _repoWrapper.CategoryRepository.GetAllAsync();
+
+            var mappedCategories = _mapper.Map<IEnumerable<CategoryDTO>>(categories);
+
+            return mappedCategories;
+        }
+
+        public async Task<IEnumerable<EmploymentTypeDTO>> GetEmploymentTypesAsync()
+        {
+            var employmentTypes = await _repoWrapper.EmploymentTypeRepository.GetAllAsync();
+
+            var mappedEmploymentTypes = _mapper.Map<IEnumerable<EmploymentTypeDTO>>(employmentTypes);
+
+            return mappedEmploymentTypes;
+        }
+
         public async Task<IEnumerable<VacancyDTO>> GetFilteredVacanciesAsync(VacancyFilters filters)
         {
             //Expression<Func<DAL.Entities.Vacancy.Vacancy, bool>> lastPredicate = null;
@@ -46,6 +63,24 @@ namespace ICH.BLL.Services.Vacancy
             return null;
         }
 
+        public async Task<IEnumerable<LocationDTO>> GetLocationsAsync()
+        {
+            var locations = await _repoWrapper.LocationRepository.GetAllAsync();
+
+            var mappedLocations = _mapper.Map<IEnumerable<LocationDTO>>(locations);
+
+            return mappedLocations;
+        }
+
+        public async Task<IEnumerable<SpecialCategoryDTO>> GetSpecialCategoriesAsync()
+        {
+            var specialCategories = await _repoWrapper.SpecialCategoryRepository.GetAllAsync();
+
+            var mappedSpecialCategories = _mapper.Map<IEnumerable<SpecialCategoryDTO>>(specialCategories);
+
+            return mappedSpecialCategories;
+        }
+
         public async Task<VacancyDTO> GetVacancyByIdAsync(int id)
         {
             var vacancy = await _repoWrapper.VacancyRepository.GetFirstOrDefaultAsync(
@@ -56,6 +91,15 @@ namespace ICH.BLL.Services.Vacancy
             var mappedVacancy = _mapper.Map<DAL.Entities.Vacancy.Vacancy, VacancyDTO>(vacancy);
 
             return mappedVacancy;
+        }
+
+        public async Task<IEnumerable<WorkTypeDTO>> GetWorkTypesAsync()
+        {
+            var workTypes = await _repoWrapper.WorkTypeRepository.GetAllAsync();
+
+            var mappedWorkTypes = _mapper.Map<IEnumerable<WorkTypeDTO>>(workTypes);
+
+            return mappedWorkTypes;
         }
     }
 }

@@ -5,83 +5,195 @@
 @using System.Text.Json;
 
 @inject HttpClient Http
-<div class="parent">
-    <div class="row justify-content-around">
-        <div class="col-3">
-            <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
-        </div>
-        <div class="col-3">
-            <HxSelect Data="_cities" InputGroupStartText="Місто" @bind-Value="SelectedCity" Nullable="true" NullText="Вся Україна" TItem="string" TValue="string" TextSelector="@(p => p)" ValueSelector="@(p => p)" />
-        </div>
-        <div class="col-3">
-            <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="async () => await Task.Delay(2000)" />
-        </div>
-    </div>
-</div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-9">
-            @if (_vacancies != null)
-            {
-                <div style="height: 800px; overflow-y: scroll;">
-                    <Virtualize Items="@_vacancies" Context="vacancy">
-                        @foreach (var vacancy in _vacancies)
-                        {
-                            <div class="row mt-2">
-                                <HxCard>
-                                    <BodyTemplate>
-                                        <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
-                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
-                                        <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
-                                        <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
-                                        <HxCardText>@vacancy.Description</HxCardText>
-                                    </BodyTemplate>
-                                </HxCard>
-                            </div>
-                        }
-                    </Virtualize>
-                </div>
-            }
-            else
-            {
-                <HxSpinner Color="ThemeColor.Primary" />
-            }
-        </div>
-        <div class="col-3">
-            <div class="row">
-                <HxCheckboxList TItem="string" TValue="string" Label="Категорія" >
-
-                </HxCheckboxList>
+@if (!Downloading)
+{
+    <div class="parent">
+        <div class="row justify-content-around">
+            <div class="col-3">
+                <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
+            </div>
+            <div class="col-3">
+                <HxSelect Data="@Locations"
+                      InputGroupStartText="Місто"
+                      @bind-Value="@SelectedLocation"
+                      Nullable="true"
+                      NullText="Вся Україна"
+                      TItem="LocationViewModel"
+                      TValue="LocationViewModel"
+                      TextSelector="@(p => p.Title)"
+                      ValueSelector="@(p => p)" />
+            </div>
+            <div class="col-3">
+                <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="async () => await Task.Delay(2000)" />
             </div>
         </div>
     </div>
-</div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-9">
+                @if (_vacancies != null)
+                {
+                    <div style="height: 800px; overflow-y: scroll;">
+                        <Virtualize Items="@_vacancies" Context="vacancy">
+                            @foreach (var vacancy in _vacancies)
+                            {
+                                <div class="row mt-2">
+                                    <HxCard>
+                                        <BodyTemplate>
+                                            <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
+                                            <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                            <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
+                                            <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
+                                            <HxCardText>@vacancy.Description</HxCardText>
+                                        </BodyTemplate>
+                                    </HxCard>
+                                </div>
+                            }
+                        </Virtualize>
+                    </div>
+                }
+                else
+                {
+                    <HxSpinner Color="ThemeColor.Primary" />
+                }
+            </div>
+            <div class="col-3">
+                <div class="row">
+                    <HxCheckboxList TItem="CategoryViewModel"
+                                TValue="CategoryViewModel"
+                                Data="Categories"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedCategories
+                                Label="Категорія" />
+                </div>
+                <div class="row">
+                    <HxCheckboxList TItem="SpecialCategoryViewModel"
+                                TValue="SpecialCategoryViewModel"
+                                Data="SpecialCategories"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedSpecialCategories
+                                Label="Спец категорії" />
+                </div>
+                <div class="row">
+                    <HxCheckboxList TItem="EmploymentTypeViewModel"
+                                TValue="EmploymentTypeViewModel"
+                                Data="EmploymentTypes"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedEmploymentTypes
+                                Label="Тип зайнятості" />
+                </div>
+                <div class="row">
+                    <HxCheckboxList TItem="WorkTypeViewModel"
+                                TValue="WorkTypeViewModel"
+                                Data="WorkTypes"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedWorkTypes
+                                Label="Робота" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <HxSpinner Color="ThemeColor.Primary" />
+}
 
 @code {
-    private ICollection<VacancyViewModel> _vacancies;
+    private ICollection<VacancyViewModel> _vacancies { get; set; }
     private string SearchName { get; set; }
 
-    private List<string> _cities;
-    private string SelectedCity { get; set; }
+    private List<LocationViewModel> Locations { get; set; }
+    private LocationViewModel SelectedLocation { get; set; }
 
-    private List<string> _categories;
-    private List<string> SelectedCategories;
+    private List<CategoryViewModel> Categories { get; set; }
+    private List<CategoryViewModel> SelectedCategories { get; set; }
+
+    private List<SpecialCategoryViewModel> SpecialCategories { get; set; }
+    private List<SpecialCategoryViewModel> SelectedSpecialCategories { get; set; }
+
+    private List<EmploymentTypeViewModel> EmploymentTypes { get; set; }
+    private List<EmploymentTypeViewModel> SelectedEmploymentTypes { get; set; }
+
+    private List<WorkTypeViewModel> WorkTypes { get; set; }
+    private List<WorkTypeViewModel> SelectedWorkTypes { get; set; }
+
+    private bool Downloading;
 
     protected override async Task OnInitializedAsync()
     {
-        _cities = new List<string>()
-        {
-            "Львів", "Київ", "Івано-Франківськ", "Вінниця"
-        };
-
-        _categories = new List<string>()
-        {
-            "Сфера обслу"
-        };
-
+        Downloading = true;
+        
+        await GetAllCategories();
+        await GetAllSpecialCategories();
+        await GetAllWorkTypes();
+        await GetAllLocations();
+        await GetAllEmploymentTypes();
         await GetAllVacancies();
         base.OnInitialized();
+
+        Downloading = false;
+    }
+
+    private async Task GetAllCategories()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.CategoriesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<CategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Categories = vacancies.ToList();
+    }
+
+    private async Task GetAllSpecialCategories()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.SpecialCategoriesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<SpecialCategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        SpecialCategories = vacancies.ToList();
+    }
+
+    private async Task GetAllLocations()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.LocationsUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<LocationViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Locations = vacancies.ToList();
+    }
+
+    private async Task GetAllEmploymentTypes()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.EmploymentTypesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<EmploymentTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        EmploymentTypes = vacancies.ToList();
+    }
+
+    private async Task GetAllWorkTypes()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.WorkTypesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<WorkTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        WorkTypes = vacancies.ToList();
     }
 
     private async Task GetAllVacancies()

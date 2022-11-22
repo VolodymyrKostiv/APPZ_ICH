@@ -40,20 +40,6 @@ namespace ICH.DAL.Migrations
                     b.ToTable("Locations");
                 });
 
-            modelBuilder.Entity("ICH.DAL.Entities.User.CV", b =>
-                {
-                    b.Property<int>("CVId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CVId");
-
-                    b.ToTable("CV");
-                });
-
             modelBuilder.Entity("ICH.DAL.Entities.User.User", b =>
                 {
                     b.Property<int>("UserId")
@@ -72,10 +58,15 @@ namespace ICH.DAL.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<int?>("UserInfoId")
+                        .HasColumnType("int");
+
                     b.Property<int>("UserTypeId")
                         .HasColumnType("int");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("UserInfoId");
 
                     b.HasIndex("UserTypeId");
 
@@ -85,7 +76,10 @@ namespace ICH.DAL.Migrations
             modelBuilder.Entity("ICH.DAL.Entities.User.UserInfo", b =>
                 {
                     b.Property<int>("UserInfoId")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserInfoId"), 1L, 1);
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -261,24 +255,19 @@ namespace ICH.DAL.Migrations
                     b.ToTable("SpecialCategoryVacancy");
                 });
 
-            modelBuilder.Entity("ICH.DAL.Entities.User.CV", b =>
-                {
-                    b.HasOne("ICH.DAL.Entities.User.UserInfo", "UserInfo")
-                        .WithOne("CV")
-                        .HasForeignKey("ICH.DAL.Entities.User.CV", "CVId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("UserInfo");
-                });
-
             modelBuilder.Entity("ICH.DAL.Entities.User.User", b =>
                 {
+                    b.HasOne("ICH.DAL.Entities.User.UserInfo", "UserInfo")
+                        .WithMany("Users")
+                        .HasForeignKey("UserInfoId");
+
                     b.HasOne("ICH.DAL.Entities.User.UserType", "UserType")
                         .WithMany("Users")
                         .HasForeignKey("UserTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("UserInfo");
 
                     b.Navigation("UserType");
                 });
@@ -289,15 +278,7 @@ namespace ICH.DAL.Migrations
                         .WithMany("UserInfos")
                         .HasForeignKey("LocationId");
 
-                    b.HasOne("ICH.DAL.Entities.User.User", "User")
-                        .WithOne("UserInfo")
-                        .HasForeignKey("ICH.DAL.Entities.User.UserInfo", "UserInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Location");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ICH.DAL.Entities.Vacancy.Vacancy", b =>
@@ -357,16 +338,12 @@ namespace ICH.DAL.Migrations
 
             modelBuilder.Entity("ICH.DAL.Entities.User.User", b =>
                 {
-                    b.Navigation("UserInfo")
-                        .IsRequired();
-
                     b.Navigation("Vacancies");
                 });
 
             modelBuilder.Entity("ICH.DAL.Entities.User.UserInfo", b =>
                 {
-                    b.Navigation("CV")
-                        .IsRequired();
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ICH.DAL.Entities.User.UserType", b =>

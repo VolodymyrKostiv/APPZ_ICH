@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ICH.Server.Controllers
 {
-    /// <summary>
-    /// Implements all business logic related to vacancies.
-    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class VacancyController : ControllerBase
@@ -22,6 +19,57 @@ namespace ICH.Server.Controllers
             _mapper = mapper;
             _vacancyService = vacancyService;
         }
+
+        [HttpGet("Categories")]
+        public async Task<IActionResult> GetCategories()
+        {
+            var categories = await _vacancyService.GetCategoriesAsync();
+
+            var mappedCategories = _mapper.Map<IEnumerable<CategoryViewModel>>(categories);
+
+            return Ok(mappedCategories);
+        }
+
+        [HttpGet("SpecialCategories")]
+        public async Task<IActionResult> GetSpecialCategories()
+        {
+            var categories = await _vacancyService.GetSpecialCategoriesAsync();
+
+            var mappedCategories = _mapper.Map<IEnumerable<SpecialCategoryViewModel>>(categories);
+
+            return Ok(mappedCategories);
+        }
+
+        [HttpGet("WorkTypes")]
+        public async Task<IActionResult> GetWorkTypes()
+        {
+            var workTypes = await _vacancyService.GetWorkTypesAsync();
+
+            var mappedWorkTypes = _mapper.Map<IEnumerable<WorkTypeViewModel>>(workTypes);
+
+            return Ok(mappedWorkTypes);
+        }
+
+        [HttpGet("EmploymentTypes")]
+        public async Task<IActionResult> GetEmploymentTypes()
+        {
+            var employmentTypes = await _vacancyService.GetEmploymentTypesAsync();
+
+            var mappedEmploymentTypes = _mapper.Map<IEnumerable<EmploymentTypeViewModel>>(employmentTypes);
+
+            return Ok(mappedEmploymentTypes);
+        }
+
+        [HttpGet("Locations")]
+        public async Task<IActionResult> GetLocations()
+        {
+            var locations = await _vacancyService.GetLocationsAsync();
+
+            var mappedLocations = _mapper.Map<IEnumerable<LocationViewModel>>(locations);
+
+            return Ok(mappedLocations);
+        }
+
 
         /// <summary>
         /// Get all vacancies

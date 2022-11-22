@@ -9,7 +9,6 @@ namespace ICH.Server.Mapping.User
         public UserProfile()
         {
             CreateMap<UserViewModel, UserDTO>().ReverseMap();
-            CreateMap<CVViewModel, CVDTO>().ReverseMap();
             CreateMap<UserInfoViewModel, UserInfoDTO>().ReverseMap();
             CreateMap<UserTypeViewModel, UserTypeDTO>().ReverseMap();
         }

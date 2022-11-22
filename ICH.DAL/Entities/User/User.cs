@@ -13,7 +13,7 @@ namespace ICH.DAL.Entities.User
         public string Password { get; set; }
 
         public UserType UserType { get; set; }
-        public virtual UserInfo UserInfo { get; set; }
-        public ICollection<ICH.DAL.Entities.Vacancy.Vacancy> Vacancies { get; set; }
+        public UserInfo? UserInfo { get; set; }
+        public ICollection<Vacancy.Vacancy> Vacancies { get; set; }
     }
 }

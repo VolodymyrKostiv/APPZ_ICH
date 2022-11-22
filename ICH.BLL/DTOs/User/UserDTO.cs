@@ -9,7 +9,7 @@ namespace ICH.BLL.DTOs.User
         public string Password { get; set; }
 
         public UserTypeDTO UserType { get; set; }
-        public virtual UserInfoDTO UserInfo { get; set; }
+        public UserInfoDTO? UserInfo { get; set; }
         public ICollection<VacancyDTO> Vacancies { get; set; }
     }
 }

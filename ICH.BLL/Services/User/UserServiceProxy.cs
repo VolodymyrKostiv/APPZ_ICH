@@ -34,5 +34,10 @@ namespace ICH.BLL.Services.User
             var res = await _userService.GetUserByIdAsync(id);
             return res;
         }
+
+        public Task<UserDTO> GetUserByUserType(UserTypeDTO type)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace ICH.DAL.Entities.General
         public int LocationId { get; set; }
         [MaxLength(50)]
         public string Title { get; set; }
-        public ICollection<ICH.DAL.Entities.Vacancy.Vacancy> Vacancies { get; set; }
+        public ICollection<Vacancy.Vacancy> Vacancies { get; set; }
         public ICollection<UserInfo> UserInfos { get; set; }
     }
 }
