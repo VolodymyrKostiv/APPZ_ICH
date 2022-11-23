@@ -10,12 +10,12 @@
 
 @if (!Downloading)
 {
-    <div class="parent">
-        <div class="row justify-content-around">
+    <div class="col">
+        <div class="row">
             <div class="col-3">
                 <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
             </div>
-            <div class="col-3">
+            <div class="col-3 align-content-center">
                 <HxSelect Data="@Locations"
                       InputGroupStartText="Місто"
                       @bind-Value="@SelectedLocation"
@@ -30,10 +30,8 @@
                 <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="OnSearchClicked" />
             </div>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="row">
+        <div class="row mt-4">
             <div class="col-9">
                 @if (_vacancies != null)
                 {
@@ -42,20 +40,22 @@
                             @foreach (var vacancy in _vacancies)
                             {
                                 <div class="row mt-2">
-                                    <HxCard>
-                                        <BodyTemplate>
-                                            <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
-                                            <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
-                                            <HxCardSubtitle>@vacancy.Company, @vacancy?.Location.Title</HxCardSubtitle>
-                                            <HxCardText>@vacancy?.EmploymentType.Title</HxCardText>
-                                            <HxCardText>@vacancy.Description</HxCardText>
-                                            <div class="row justify-content-end">
-                                                <HxCardText>
-                                                    <small class="text-muted">@vacancy.CreationTime.ToString("dd/MM/yyyy")</small>
-                                                </HxCardText>
-                                            </div>
-                                        </BodyTemplate>
-                                    </HxCard>
+                                    <div class="col ml-1 me-2">
+                                        <HxCard>
+                                            <BodyTemplate>
+                                                <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
+                                                <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                                <HxCardSubtitle>@vacancy.Company, @vacancy?.Location.Title</HxCardSubtitle>
+                                                <HxCardText>@vacancy?.EmploymentType.Title</HxCardText>
+                                                <HxCardText>@vacancy.Description</HxCardText>
+                                                <div class=" flex-row align-content-end " style="text-align: right;">
+                                                    <HxCardText>
+                                                        <small class="text-muted">@((DateTime.Now.Subtract(@vacancy.CreationTime).Days / 7).ToString() + " тиж. тому")</small>
+                                                    </HxCardText>
+                                                </div>
+                                            </BodyTemplate>
+                                        </HxCard>
+                                    </div>
                                 </div>
                             }
                         </Virtualize>
