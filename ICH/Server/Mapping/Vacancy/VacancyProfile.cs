@@ -14,6 +14,7 @@ namespace ICH.Server.Mapping.Vacancy
             CreateMap<SpecialCategoryViewModel, SpecialCategoryDTO>().ReverseMap();
             CreateMap<CategoryViewModel, CategoryDTO>().ReverseMap();
             CreateMap<WorkTypeViewModel, WorkTypeDTO>().ReverseMap();
+            CreateMap<VacancySearchFiltersViewModel, VacancySearchFiltersDTO>().ReverseMap();
         }
     }
 }

@@ -11,8 +11,10 @@ namespace ICH.Shared.ViewModels.Vacancy
         public DateTime CreationTime { get; set; }
         public int? Salary { get; set; }
         public string? Company { get; set; }
-        public EmploymentTypeViewModel EmploymentType { get; set; }
+        public EmploymentTypeViewModel? EmploymentType { get; set; }
+        public WorkTypeViewModel? WorkType { get; set; }
+        public CategoryViewModel? Category { get; set; }
         public UserViewModel User { get; set; }
-        public ICollection<SpecialCategoryViewModel> SpecialCategories { get; set; }
+        public ICollection<SpecialCategoryViewModel>? SpecialCategories { get; set; }
     }
 }

@@ -13,8 +13,10 @@ namespace ICH.DAL.Entities.Vacancy
         public DateTime CreationTime { get; set; }
         public int? Salary { get; set; }
         public string? Company { get; set; }
-        public EmploymentType EmploymentType { get; set; }
+        public EmploymentType? EmploymentType { get; set; }
+        public WorkType? WorkType { get; set; }
+        public Category? Category { get; set; }
         public ICH.DAL.Entities.User.User User { get; set; }
-        public ICollection<SpecialCategory> SpecialCategories { get; set; }
+        public ICollection<SpecialCategory>? SpecialCategories { get; set; }
     }
 }

@@ -3,6 +3,8 @@
 @using ICH.Client.API;
 @using ICH.Shared.ViewModels.Vacancy;
 @using System.Text.Json;
+@using System.Text;
+@using System.Net.Mime;
 
 @inject HttpClient Http
 
@@ -25,7 +27,7 @@
                       ValueSelector="@(p => p)" />
             </div>
             <div class="col-3">
-                <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="async () => await Task.Delay(2000)" />
+                <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="OnSearchClicked" />
             </div>
         </div>
     </div>
@@ -44,9 +46,14 @@
                                         <BodyTemplate>
                                             <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
                                             <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
-                                            <HxCardSubtitle>@vacancy.Company, @vacancy.Location</HxCardSubtitle>
-                                            <HxCardText>@vacancy.EmploymentType.Title, @vacancy.CreationTime.Date</HxCardText>
+                                            <HxCardSubtitle>@vacancy.Company, @vacancy?.Location.Title</HxCardSubtitle>
+                                            <HxCardText>@vacancy?.EmploymentType.Title</HxCardText>
                                             <HxCardText>@vacancy.Description</HxCardText>
+                                            <div class="row justify-content-end">
+                                                <HxCardText>
+                                                    <small class="text-muted">@vacancy.CreationTime.ToString("dd/MM/yyyy")</small>
+                                                </HxCardText>
+                                            </div>
                                         </BodyTemplate>
                                     </HxCard>
                                 </div>
@@ -107,6 +114,7 @@ else
 
 @code {
     private ICollection<VacancyViewModel> _vacancies { get; set; }
+
     private string SearchName { get; set; }
 
     private List<LocationViewModel> Locations { get; set; }
@@ -129,7 +137,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         Downloading = true;
-        
+
         await GetAllCategories();
         await GetAllSpecialCategories();
         await GetAllWorkTypes();
@@ -139,6 +147,56 @@ else
         base.OnInitialized();
 
         Downloading = false;
+    }
+
+    private async Task OnSearchClicked()
+    {
+        Downloading = true;
+
+        VacancySearchFiltersViewModel filters = new VacancySearchFiltersViewModel()
+            {
+                SearchName = this.SearchName,
+                SelectedCategories = this.SelectedCategories,
+                SelectedLocation = this.SelectedLocation,
+                SelectedEmploymentTypes = this.SelectedEmploymentTypes,
+                SelectedSpecialCategories = this.SelectedSpecialCategories,
+                SelectedWorkTypes = this.SelectedWorkTypes,
+            };
+
+        if (filters.SearchName == null &&
+        filters.SelectedCategories == null &&
+        filters.SelectedLocation == null &&
+        filters.SelectedEmploymentTypes == null &&
+        filters.SelectedSpecialCategories == null &&
+        filters.SelectedWorkTypes == null)
+        {
+            await GetAllVacancies();
+        }
+
+        await GetFilteredVacancies(filters);
+
+        Downloading = false;
+        StateHasChanged();
+    }
+
+    private async Task GetFilteredVacancies(VacancySearchFiltersViewModel filters)
+    {
+        var jsonRequest = JsonSerializer.Serialize(filters);
+
+        var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(VacancyGlobals.FilteredVacanciesUri),
+                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
+            };
+
+        var response = await Http.SendAsync(request).ConfigureAwait(false);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        _vacancies = (ICollection<VacancyViewModel>)vacancies;
     }
 
     private async Task GetAllCategories()

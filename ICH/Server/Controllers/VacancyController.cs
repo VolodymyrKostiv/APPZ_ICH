@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ICH.BLL.DTOs.Vacancy;
 using ICH.BLL.Interfaces.Vacancy;
-using ICH.CommonModels.Filters.Vacancy;
 using ICH.Shared.ViewModels.Vacancy;
 using Microsoft.AspNetCore.Mvc;
 
@@ -86,16 +85,21 @@ namespace ICH.Server.Controllers
             return Ok(mappedVacancies);
         }
 
-
         ///// <summary>
         ///// Get filtered vacancies
         ///// </summary>
         ///// <returns></returns>
         ///// <response code="200">Successful operation</response>
-        [HttpGet("FilteredVacancies")]
-        public async Task<IActionResult> GetFilteredVacancies([FromBody]VacancyFilters fiters)
+        [HttpPost("FilteredVacancies")]
+        public async Task<IActionResult> GetFilteredVacancies([FromBody] VacancySearchFiltersViewModel fiters)
         {
-            return null;
+            var mappedFilters = _mapper.Map<VacancySearchFiltersDTO>(fiters);
+
+            var vacancies = await _vacancyService.GetFilteredVacanciesAsync(mappedFilters);
+
+            var mappedVacancies = _mapper.Map<IEnumerable<VacancyViewModel>>(vacancies);
+
+            return Ok(mappedVacancies);
         }
     }
 }

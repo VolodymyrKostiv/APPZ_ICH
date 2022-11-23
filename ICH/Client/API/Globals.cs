@@ -3,13 +3,14 @@
     internal static class Globals
     {
         public static string ApiUri { get; set; }
-        = "api";
+        = "https://localhost:7040/api";
     }
 
     internal static class VacancyGlobals
     {
         private static string VacanciesUri { get; } = Globals.ApiUri + "/Vacancy";
         public static string AllVacanciesUri { get; } = VacanciesUri + "/AllVacancies";
+        public static string FilteredVacanciesUri { get; } = VacanciesUri + "/FilteredVacancies";
         public static string CategoriesUri { get; } = VacanciesUri + "/Categories";
         public static string SpecialCategoriesUri { get; } = VacanciesUri + "/SpecialCategories";
         public static string LocationsUri { get; } = VacanciesUri + "/Locations";

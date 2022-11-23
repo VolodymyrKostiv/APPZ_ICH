@@ -4,6 +4,7 @@ using ICH.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ICH.DAL.Migrations
 {
     [DbContext(typeof(ICHDBContext))]
-    partial class ICHDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221123125629_VacancyCategoryMigration")]
+    partial class VacancyCategoryMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,7 +176,7 @@ namespace ICH.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("VacancyId"), 1L, 1);
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Company")
@@ -187,7 +189,7 @@ namespace ICH.DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("EmploymentTypeId")
+                    b.Property<int>("EmploymentTypeId")
                         .HasColumnType("int");
 
                     b.Property<int?>("LocationId")
@@ -285,11 +287,15 @@ namespace ICH.DAL.Migrations
                 {
                     b.HasOne("ICH.DAL.Entities.Vacancy.Category", "Category")
                         .WithMany("Vacancies")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ICH.DAL.Entities.Vacancy.EmploymentType", "EmploymentType")
                         .WithMany("Vacancies")
-                        .HasForeignKey("EmploymentTypeId");
+                        .HasForeignKey("EmploymentTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("ICH.DAL.Entities.General.Location", "Location")
                         .WithMany("Vacancies")
@@ -301,7 +307,7 @@ namespace ICH.DAL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ICH.DAL.Entities.Vacancy.WorkType", "WorkType")
+                    b.HasOne("ICH.DAL.Entities.Vacancy.WorkType", null)
                         .WithMany("Vacancies")
                         .HasForeignKey("WorkTypeId");
 
@@ -312,8 +318,6 @@ namespace ICH.DAL.Migrations
                     b.Navigation("Location");
 
                     b.Navigation("User");
-
-                    b.Navigation("WorkType");
                 });
 
             modelBuilder.Entity("SpecialCategoryVacancy", b =>

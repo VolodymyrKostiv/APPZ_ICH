@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using ICH.BLL.DTOs.Vacancy;
 using ICH.BLL.Interfaces.Vacancy;
-using ICH.CommonModels.Filters.Vacancy;
 using ICH.DAL.Repositories.Interfaces.Base;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,9 +21,14 @@ namespace ICH.BLL.Services.Vacancy
         {
             var vacancies = await _repoWrapper.VacancyRepository.GetAllAsync(
                 include: source => source
-                    .Include(x => x.EmploymentType));
+                    .Include(x => x.EmploymentType)
+                    .Include(x => x.Category)
+                    .Include(x => x.SpecialCategories)
+                    .Include(x => x.Location));
 
-            return _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
+            var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
+
+            return mappedVacancies;
         }
 
         public async Task<IEnumerable<CategoryDTO>> GetCategoriesAsync()
@@ -45,22 +49,72 @@ namespace ICH.BLL.Services.Vacancy
             return mappedEmploymentTypes;
         }
 
-        public async Task<IEnumerable<VacancyDTO>> GetFilteredVacanciesAsync(VacancyFilters filters)
+        public async Task<IEnumerable<VacancyDTO>> GetFilteredVacanciesAsync(VacancySearchFiltersDTO filters)
         {
-            //Expression<Func<DAL.Entities.Vacancy.Vacancy, bool>> lastPredicate = null;
-            //string lowerSearchName = searchName.ToLower();
+            var vacancies = await _repoWrapper.VacancyRepository.GetAllAsync(
+                 include: source => source
+                     .Include(x => x.EmploymentType)
+                     .Include(x => x.SpecialCategories)
+                     .Include(x => x.Category)
+                     .Include(x => x.Location)
+                     .Include(x => x.WorkType));
 
-            //if (searchName != null)
-            //{
-            //    Expression<Func<DAL.Entities.Vacancy.Vacancy, bool>> searchPredicate = x => x.Title.ToLower().Contains(lowerSearchName);
-            //}
+            if (filters != null)
+            {
+                if (filters.SearchName != null && filters.SearchName != "")
+                {
+                    vacancies = vacancies.Where(x => x.Title != null && x.Title.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant()))?.ToList();
+                    if (vacancies == null)
+                    {
+                        return null;
+                    }
+                }
+                
+                if (filters.SelectedLocation != null)
+                {
+                    vacancies = vacancies.Where(x => x.Location != null && x.Location.LocationId == filters.SelectedLocation.LocationId)?.ToList();
+                    if (vacancies == null)
+                    {
+                        return null;
+                    }
+                }
 
-            //var vacancies = await _repoWrapper.VacancyRepository.GetAllAsync(
-            //    include: source => source
-            //        .Include(x => x.EmploymentType),
-            //    predicate: lastPredicate);
+                if (filters.SelectedEmploymentTypes != null && filters.SelectedEmploymentTypes.Count() != 0) 
+                {
+                    vacancies = vacancies.Where(y => filters.SelectedEmploymentTypes.Any(x => y.EmploymentType != null && x.EmploymentTypeId == y.EmploymentType.EmploymentTypeId))?.ToList();
+                    if (vacancies == null)
+                    {
+                        return null;
+                    }
+                }
 
-            return null;
+                if (filters.SelectedCategories != null && filters.SelectedCategories.Count() != 0)
+                {
+                    vacancies = vacancies.Where(y => filters.SelectedCategories.Any(x => y.Category != null && x.CategoryId == y.Category.CategoryId))?.ToList();
+                    if (vacancies == null)
+                    {
+                        return null;
+                    }
+                }
+
+                if (filters.SelectedWorkTypes != null && filters.SelectedWorkTypes.Count() != 0 )
+                {
+                    vacancies = vacancies.Where(y => filters.SelectedWorkTypes.Any(x => y.WorkType != null && x.WorkTypeId == y.WorkType.WorkTypeId))?.ToList();
+                    if (vacancies == null)
+                    {
+                        return null;
+                    }
+                }
+
+                //if (filters.SelectedSpecialCategories!= null) 
+                //{
+                //    vacancies = vacancies.Where(y => filters.SelectedSpecialCategories.Any).ToList();
+                //}
+            }
+
+            var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
+
+            return mappedVacancies;
         }
 
         public async Task<IEnumerable<LocationDTO>> GetLocationsAsync()
@@ -86,7 +140,10 @@ namespace ICH.BLL.Services.Vacancy
             var vacancy = await _repoWrapper.VacancyRepository.GetFirstOrDefaultAsync(
                 predicate: v => v.VacancyId == id,
                 include: source => source
-                    .Include(x => x.EmploymentType));
+                    .Include(x => x.EmploymentType)
+                    .Include(x => x.Category)
+                    .Include(x => x.SpecialCategories)
+                    .Include(x => x.Location));
 
             var mappedVacancy = _mapper.Map<DAL.Entities.Vacancy.Vacancy, VacancyDTO>(vacancy);
 

@@ -15,7 +15,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ICH.DAL\ICH.DAL.csproj" />
-    <ProjectReference Include="..\ICH\ICH.CommonModels\ICH.CommonModels.csproj" />
   </ItemGroup>
 
 </Project>
