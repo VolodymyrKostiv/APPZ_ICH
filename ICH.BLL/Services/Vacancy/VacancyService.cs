@@ -24,7 +24,8 @@ namespace ICH.BLL.Services.Vacancy
                     .Include(x => x.EmploymentType)
                     .Include(x => x.Category)
                     .Include(x => x.SpecialCategories)
-                    .Include(x => x.Location));
+                    .Include(x => x.Location)
+                    .Include(x => x.WorkType));
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
 
@@ -69,7 +70,7 @@ namespace ICH.BLL.Services.Vacancy
                         return null;
                     }
                 }
-                
+
                 if (filters.SelectedLocation != null)
                 {
                     vacancies = vacancies.Where(x => x.Location != null && x.Location.LocationId == filters.SelectedLocation.LocationId)?.ToList();
@@ -79,7 +80,7 @@ namespace ICH.BLL.Services.Vacancy
                     }
                 }
 
-                if (filters.SelectedEmploymentTypes != null && filters.SelectedEmploymentTypes.Count() != 0) 
+                if (filters.SelectedEmploymentTypes != null && filters.SelectedEmploymentTypes.Count() != 0)
                 {
                     vacancies = vacancies.Where(y => filters.SelectedEmploymentTypes.Any(x => y.EmploymentType != null && x.EmploymentTypeId == y.EmploymentType.EmploymentTypeId))?.ToList();
                     if (vacancies == null)
@@ -97,7 +98,7 @@ namespace ICH.BLL.Services.Vacancy
                     }
                 }
 
-                if (filters.SelectedWorkTypes != null && filters.SelectedWorkTypes.Count() != 0 )
+                if (filters.SelectedWorkTypes != null && filters.SelectedWorkTypes.Count() != 0)
                 {
                     vacancies = vacancies.Where(y => filters.SelectedWorkTypes.Any(x => y.WorkType != null && x.WorkTypeId == y.WorkType.WorkTypeId))?.ToList();
                     if (vacancies == null)
@@ -106,10 +107,15 @@ namespace ICH.BLL.Services.Vacancy
                     }
                 }
 
-                //if (filters.SelectedSpecialCategories!= null) 
-                //{
-                //    vacancies = vacancies.Where(y => filters.SelectedSpecialCategories.Any).ToList();
-                //}
+                if (filters.SelectedSpecialCategories != null)
+                {
+                    vacancies = vacancies.Where(y => y.SpecialCategories.Any(x =>
+                    filters.SelectedSpecialCategories.Any(z => z.SpecialCategoryId == x.SpecialCategoryId))).ToList();
+                    if (vacancies == null)
+                    {
+                        return null;
+                    }
+                }
             }
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
@@ -143,7 +149,8 @@ namespace ICH.BLL.Services.Vacancy
                     .Include(x => x.EmploymentType)
                     .Include(x => x.Category)
                     .Include(x => x.SpecialCategories)
-                    .Include(x => x.Location));
+                    .Include(x => x.Location)
+                    .Include(x => x.WorkType));
 
             var mappedVacancy = _mapper.Map<DAL.Entities.Vacancy.Vacancy, VacancyDTO>(vacancy);
 
