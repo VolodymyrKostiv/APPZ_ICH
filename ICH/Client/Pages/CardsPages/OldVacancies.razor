@@ -1,0 +1,470 @@
+﻿@page "/oldvacancies"
+
+@using ICH.Client.API;
+@using ICH.Shared.ViewModels.Vacancy;
+@using System.Text.Json;
+@using System.Text;
+@using System.Net.Mime;
+
+@inject HttpClient Http
+
+<style>
+    .divBadge {
+        font-size: 14px;
+    }
+
+    hr.filters {
+        border-top: 1px solid red;
+        width: 50%;
+    }
+</style>
+
+@if (!Downloading)
+{
+    <div class="col">
+        <div class="row">
+            <div class="col-3 offset-1">
+                <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
+            </div>
+            <div class="col-3">
+                <HxSelect Data="@Locations"
+                      InputGroupStartText="Місто"
+                      @bind-Value="@SelectedLocation"
+                      Nullable="true"
+                      NullText="Вся Україна"
+                      TItem="LocationViewModel"
+                      TValue="LocationViewModel"
+                      TextSelector="@(p => p.Title)"
+                      ValueSelector="@(p => p)" />
+            </div>
+            <div class="col-2">
+                <HxDropdownButtonGroup>
+                    <HxDropdownToggleButton Color="ThemeColor.Primary">
+                        Сортування
+                    </HxDropdownToggleButton>
+                    <HxDropdownMenu>
+                        <HxDropdownItem OnClick="OnUpSortChosen">
+                            @if (!IsDownSort)
+                            {
+                                <b>За зростанням</b>
+                            }
+                            else
+                            {
+                                <div>За зростанням</div>
+                            }
+                        </HxDropdownItem>
+                        <HxDropdownItem OnClick="OnDownSortChosen">
+                            @if (IsDownSort)
+                            {
+                                <b>За спаданням</b>
+                            }
+                            else
+                            {
+                                <div>За спаданням</div>
+                            }
+                        </HxDropdownItem>
+                        <HxDropdownDivider />
+                        <HxDropdownItem OnClick="OnDateSortEnabled">
+                            @if (IsDateSort)
+                            {
+                                <b>За датою</b>
+                            }
+                            else
+                            {
+                                <div>За датою</div>
+                            }
+                        </HxDropdownItem>
+                        <HxDropdownItem OnClick="OnSalarySortEnabled">
+                            @if (!IsDateSort)
+                            {
+                                <b>За зарплатнею</b>
+                            }
+                            else
+                            {
+                                <div>За зарплатнею</div>
+                            }
+                        </HxDropdownItem>
+                    </HxDropdownMenu>
+                </HxDropdownButtonGroup>
+            </div>
+            <div class="col-3">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <HxButton Icon="BootstrapIcon.Search" Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="OnSearchClicked" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-8 offset-1">
+                @if (!DownloadingVacancies && _vacancies != null)
+                {
+                    <h4 style="margin-left: 20px">
+                        @_vacancies.Count вакансій
+                    </h4>
+                    <Virtualize Items="@_vacancies" Context="vacancy">
+                        <div class="row mt-2">
+                            <div class="col ml-1 me-2">
+                                <HxCard>
+                                    <BodyTemplate>
+                                        <HxCardTitle>
+                                            <HxNavLink>@vacancy.Title</HxNavLink>
+                                        </HxCardTitle>
+                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                        <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
+                                        <HxCardText>@vacancy.Description</HxCardText>
+                                        @foreach (var badge in vacancy.SpecialCategories)
+                                        {
+                                            @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(0)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                            else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(1)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Danger">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(1)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                            else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(2)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Warning">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(2)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                            else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(3)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Info">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(3)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                        }
+                                        <div class="flex-row align-content-end " style="text-align: right;">
+                                            <HxCardText>
+                                                <small class="text-muted">@((DateTime.Now.Subtract(@vacancy.CreationTime).Days / 7).ToString() + " тиж. тому")</small>
+                                            </HxCardText>
+                                        </div>
+                                    </BodyTemplate>
+                                </HxCard>
+                            </div>
+                        </div>
+                    </Virtualize>
+                }
+                else
+                {
+                    <div class="col-2 align-items-center justify-content-center">
+                        <HxSpinner Color="ThemeColor.Primary" />
+                    </div>
+                }
+            </div>
+            <div class="col-3">
+                <div class="row mb-1">
+                    <HxCheckboxList TItem="CategoryViewModel"
+                                TValue="CategoryViewModel"
+                                Data="Categories"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedCategories
+                                Label="Категорія" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
+                    <HxCheckboxList TItem="SpecialCategoryViewModel"
+                                TValue="SpecialCategoryViewModel"
+                                Data="SpecialCategories"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedSpecialCategories
+                                Label="Підходить" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
+                    <HxCheckboxList TItem="EmploymentTypeViewModel"
+                                TValue="EmploymentTypeViewModel"
+                                Data="EmploymentTypes"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedEmploymentTypes
+                                Label="Тип зайнятості" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
+                    <HxCheckboxList TItem="WorkTypeViewModel"
+                                TValue="WorkTypeViewModel"
+                                Data="WorkTypes"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedWorkTypes
+                                Label="Характер роботи" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div class="row">
+                            <HxButton Outline="true" OnClick="OnResetFiltersClicked" Color="ThemeColor.Danger">Скинути</HxButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="col-2 justify-content-center align-items-center">
+        <HxSpinner Color="ThemeColor.Primary" />
+    </div>
+}
+
+@code {
+    private ICollection<VacancyViewModel> _vacancies { get; set; }
+
+    private string SearchName { get; set; }
+
+    private List<LocationViewModel> Locations { get; set; }
+    private LocationViewModel SelectedLocation { get; set; }
+
+    private List<CategoryViewModel> Categories { get; set; }
+    private List<CategoryViewModel> SelectedCategories { get; set; }
+
+    private List<SpecialCategoryViewModel> SpecialCategories { get; set; }
+    private List<SpecialCategoryViewModel> SelectedSpecialCategories { get; set; }
+
+    private List<EmploymentTypeViewModel> EmploymentTypes { get; set; }
+    private List<EmploymentTypeViewModel> SelectedEmploymentTypes { get; set; }
+
+    private List<WorkTypeViewModel> WorkTypes { get; set; }
+    private List<WorkTypeViewModel> SelectedWorkTypes { get; set; }
+
+    private bool IsDownSort = true;
+    private bool IsDateSort = true;
+
+    private bool Downloading;
+    private bool DownloadingVacancies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Downloading = true;
+
+        await GetAllCategories();
+        await GetAllSpecialCategories();
+        await GetAllWorkTypes();
+        await GetAllLocations();
+        await GetAllEmploymentTypes();
+        await GetAllVacancies();
+        base.OnInitialized();
+
+        Downloading = false;
+    }
+
+    private async Task OnSearchClicked()
+    {
+        DownloadingVacancies = true;
+
+        VacancySearchFiltersViewModel filters = new VacancySearchFiltersViewModel()
+            {
+                SearchName = this.SearchName,
+                SelectedCategories = this.SelectedCategories,
+                SelectedLocation = this.SelectedLocation,
+                SelectedEmploymentTypes = this.SelectedEmploymentTypes,
+                SelectedSpecialCategories = this.SelectedSpecialCategories,
+                SelectedWorkTypes = this.SelectedWorkTypes,
+            };
+
+        if (filters.SearchName == null &&
+        filters.SelectedCategories == null &&
+        filters.SelectedLocation == null &&
+        filters.SelectedEmploymentTypes == null &&
+        filters.SelectedSpecialCategories == null &&
+        filters.SelectedWorkTypes == null)
+        {
+            await GetAllVacancies();
+        }
+
+        await GetFilteredVacancies(filters);
+
+        DownloadingVacancies = false;
+        StateHasChanged();
+    }
+
+    private async Task OnResetFiltersClicked()
+    {
+        DownloadingVacancies = true;
+
+        SelectedCategories = null;
+        SelectedEmploymentTypes = null;
+        SelectedLocation = null;
+        SelectedSpecialCategories = null;
+        SelectedWorkTypes = null;
+        SearchName = null;
+
+        await GetAllVacancies();
+
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnDownSortChosen()
+    {
+        IsDownSort = true;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnUpSortChosen()
+    {
+        IsDownSort = false;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnDateSortEnabled()
+    {
+        IsDateSort = true;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnSalarySortEnabled()
+    {
+        IsDateSort = false;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnSortTriggerd()
+    {
+        if (IsDateSort)
+        {
+            if (IsDownSort)
+            {
+                _vacancies = _vacancies.OrderBy(x => x.CreationTime).ToList();
+            }
+            else
+            {
+                _vacancies = _vacancies.OrderByDescending(x => x.CreationTime).ToList();
+            }
+        }
+        else if (!IsDateSort)
+        {
+            if (IsDownSort)
+            {
+                _vacancies = _vacancies.OrderByDescending(x => x.Salary).ToList();
+            }
+            else
+            {
+                _vacancies = _vacancies.OrderBy(x => x.Salary).ToList();
+            }
+        }
+    }
+
+    private async Task GetFilteredVacancies(VacancySearchFiltersViewModel filters)
+    {
+        var jsonRequest = JsonSerializer.Serialize(filters);
+
+        var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(VacancyGlobals.FilteredVacanciesUri),
+                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
+            };
+
+        var response = await Http.SendAsync(request).ConfigureAwait(false);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var currentDate = DateTime.Now;
+        _vacancies = vacancies.Where(x => currentDate.Subtract(x.CreationTime).TotalDays > 30).ToList();
+
+        await OnSortTriggerd();
+    }
+
+    private async Task GetAllCategories()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.CategoriesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<CategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Categories = vacancies.ToList();
+    }
+
+    private async Task GetAllSpecialCategories()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.SpecialCategoriesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<SpecialCategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        SpecialCategories = vacancies.ToList();
+    }
+
+    private async Task GetAllLocations()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.LocationsUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<LocationViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Locations = vacancies.ToList();
+    }
+
+    private async Task GetAllEmploymentTypes()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.EmploymentTypesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<EmploymentTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        EmploymentTypes = vacancies.ToList();
+    }
+
+    private async Task GetAllWorkTypes()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.WorkTypesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<WorkTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        WorkTypes = vacancies.ToList();
+    }
+
+    private async Task GetAllVacancies()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.AllVacanciesUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        var currentDate = DateTime.Now;
+        vacancies = vacancies.Where(x => currentDate.Subtract(x.CreationTime).TotalDays > 30);
+
+        _vacancies = vacancies.ToList();
+    }
+}
