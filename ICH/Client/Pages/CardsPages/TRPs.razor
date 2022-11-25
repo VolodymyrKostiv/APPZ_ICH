@@ -1,0 +1,236 @@
+﻿@*@page "/trps"
+
+@using ICH.Client.API;
+@using ICH.Shared.ViewModels.Vacancy;
+@using System.Text.Json;
+@using System.Text;
+@using System.Net.Mime;
+
+@inject HttpClient Http
+
+<style>
+    .divBadge {
+        font-size: 14px;
+    }
+
+    hr.filters {
+        border-top: 1px solid red;
+        width: 50%;
+    }
+</style>
+
+@if (!Downloading)
+{
+    <div class="col">
+        <div class="row">
+            <div class="col-4 offset-1">
+                <HxInputText InputGroupStartText="Посада або Ім'я" @bind-Value="SearchName" />
+            </div>
+            <div class="col-4">
+                <HxSelect Data="@Locations"
+                      InputGroupStartText="Місто"
+                      @bind-Value="@SelectedLocation"
+                      Nullable="true"
+                      NullText="Вся Україна"
+                      TItem="LocationViewModel"
+                      TValue="LocationViewModel"
+                      TextSelector="@(p => p.Title)"
+                      ValueSelector="@(p => p)" />
+            </div>
+            <div class="col-3">
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <HxButton Icon="BootstrapIcon.Search" Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="OnSearchClicked" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-8 offset-1">
+                @if (!DownloadingVacancies && _vacancies != null)
+                {
+                    <h4 style="margin-left: 20px">
+                        @_vacancies.Count резюме
+                    </h4>
+                    <Virtualize Items="@_vacancies" Context="vacancy">
+                        <div class="row mt-2">
+                            <div class="col ml-1 me-2">
+                                <HxCard>
+                                    <BodyTemplate>
+                                        <HxCardTitle>
+                                            <HxNavLink>@vacancy.Title</HxNavLink>
+                                        </HxCardTitle>
+                                        <HxCardSubtitle class="mt-1">@vacancy?.Location.Title</HxCardSubtitle>
+                                        <HxCardText>@vacancy.Description</HxCardText>
+                                    </BodyTemplate>
+                                </HxCard>
+                            </div>
+                        </div>
+                    </Virtualize>
+                }
+                else
+                {
+                    <div class="col-2 align-items-center justify-content-center">
+                        <HxSpinner Color="ThemeColor.Primary" />
+                    </div>
+                }
+            </div>
+            <div class="col-3">
+
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
+                    <HxCheckboxList TItem="SpecialCategoryViewModel"
+                                TValue="SpecialCategoryViewModel"
+                                Data="SpecialCategories"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedSpecialCategories
+                                Label="Підходить" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
+                    <HxCheckboxList TItem="EmploymentTypeViewModel"
+                                TValue="EmploymentTypeViewModel"
+                                Data="EmploymentTypes"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedEmploymentTypes
+                                Label="Тип зайнятості" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
+                    <HxCheckboxList TItem="WorkTypeViewModel"
+                                TValue="WorkTypeViewModel"
+                                Data="WorkTypes"
+                                ItemValueSelector="@(x => x)"
+                                ItemTextSelector="@(x => x.Title)"
+                                @bind-Value=@SelectedWorkTypes
+                                Label="Характер роботи" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div class="row">
+                            <HxButton Outline="true" OnClick="OnResetFiltersClicked" Color="ThemeColor.Danger">Скинути</HxButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="col-2 justify-content-center align-items-center">
+        <HxSpinner Color="ThemeColor.Primary" />
+    </div>
+}
+
+@code {
+    private ICollection<VacancyViewModel> _vacancies { get; set; }
+
+    private string SearchName { get; set; }
+
+    private List<LocationViewModel> Locations { get; set; }
+    private LocationViewModel SelectedLocation { get; set; }
+
+    private bool IsDownSort = true;
+    private bool IsDateSort = true;
+
+    private bool Downloading;
+    private bool DownloadingVacancies;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Downloading = true;
+
+        await GetAllLocations();
+        await GetAllVacancies();
+        base.OnInitialized();
+
+        Downloading = false;
+    }
+
+    private async Task OnSearchClicked()
+    {
+        DownloadingVacancies = true;
+
+        VacancySearchFiltersViewModel filters = new VacancySearchFiltersViewModel()
+            {
+                SearchName = this.SearchName,
+                SelectedCategories = this.SelectedCategories,
+                SelectedLocation = this.SelectedLocation,
+                SelectedEmploymentTypes = this.SelectedEmploymentTypes,
+                SelectedSpecialCategories = this.SelectedSpecialCategories,
+                SelectedWorkTypes = this.SelectedWorkTypes,
+            };
+
+        if (filters.SearchName == null &&
+        filters.SelectedCategories == null &&
+        filters.SelectedLocation == null &&
+        filters.SelectedEmploymentTypes == null &&
+        filters.SelectedSpecialCategories == null &&
+        filters.SelectedWorkTypes == null)
+        {
+            await GetAllVacancies();
+        }
+
+        await GetFilteredVacancies(filters);
+
+        DownloadingVacancies = false;
+        StateHasChanged();
+    }
+
+    private async Task OnResetFiltersClicked()
+    {
+        DownloadingVacancies = true;
+
+        SelectedCategories = null;
+        SelectedEmploymentTypes = null;
+        SelectedLocation = null;
+        SelectedSpecialCategories = null;
+        SelectedWorkTypes = null;
+        SearchName = null;
+
+        await GetAllVacancies();
+
+        DownloadingVacancies = false;
+    }
+
+    private async Task GetFilteredVacancies(VacancySearchFiltersViewModel filters)
+    {
+        var jsonRequest = JsonSerializer.Serialize(filters);
+
+        var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(VacancyGlobals.FilteredVacanciesUri),
+                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
+            };
+
+        var response = await Http.SendAsync(request).ConfigureAwait(false);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        _vacancies = (ICollection<VacancyViewModel>)vacancies;
+
+        await OnSortTriggerd();
+    }
+
+    private async Task GetAllLocations()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.LocationsUri);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<IEnumerable<LocationViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        Locations = vacancies.ToList();
+    }
+}
+*@

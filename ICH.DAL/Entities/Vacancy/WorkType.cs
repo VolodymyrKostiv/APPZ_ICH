@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ICH.DAL.Entities.User;
+using System.ComponentModel.DataAnnotations;
 
 namespace ICH.DAL.Entities.Vacancy
 {
@@ -9,5 +10,6 @@ namespace ICH.DAL.Entities.Vacancy
         [MaxLength(30)]
         public string Title { get; set; }
         public ICollection<Vacancy> Vacancies { get; set; }
+        public ICollection<UserInfo> UserInfos { get; set; }
     }
 }

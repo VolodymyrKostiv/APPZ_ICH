@@ -4,6 +4,7 @@ using ICH.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ICH.DAL.Migrations
 {
     [DbContext(typeof(ICHDBContext))]
-    partial class ICHDBContextModelSnapshot : ModelSnapshot
+    [Migration("20221125043614_AddedPositionToUserInfo")]
+    partial class AddedPositionToUserInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,14 +83,8 @@ namespace ICH.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserInfoId"), 1L, 1);
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("EmploymentTypeId")
-                        .HasColumnType("int");
 
                     b.Property<int?>("LocationId")
                         .HasColumnType("int");
@@ -96,18 +92,9 @@ namespace ICH.DAL.Migrations
                     b.Property<string>("Position")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("WorkTypeId")
-                        .HasColumnType("int");
-
                     b.HasKey("UserInfoId");
 
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("EmploymentTypeId");
-
                     b.HasIndex("LocationId");
-
-                    b.HasIndex("WorkTypeId");
 
                     b.ToTable("UserInfo");
                 });
@@ -258,21 +245,6 @@ namespace ICH.DAL.Migrations
                     b.ToTable("WorkTypes");
                 });
 
-            modelBuilder.Entity("SpecialCategoryUserInfo", b =>
-                {
-                    b.Property<int>("SpecialCategoriesSpecialCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserInfosUserInfoId")
-                        .HasColumnType("int");
-
-                    b.HasKey("SpecialCategoriesSpecialCategoryId", "UserInfosUserInfoId");
-
-                    b.HasIndex("UserInfosUserInfoId");
-
-                    b.ToTable("SpecialCategoryUserInfo");
-                });
-
             modelBuilder.Entity("SpecialCategoryVacancy", b =>
                 {
                     b.Property<int>("SpecialCategoriesSpecialCategoryId")
@@ -307,29 +279,11 @@ namespace ICH.DAL.Migrations
 
             modelBuilder.Entity("ICH.DAL.Entities.User.UserInfo", b =>
                 {
-                    b.HasOne("ICH.DAL.Entities.Vacancy.Category", "Category")
-                        .WithMany("UserInfos")
-                        .HasForeignKey("CategoryId");
-
-                    b.HasOne("ICH.DAL.Entities.Vacancy.EmploymentType", "EmploymentType")
-                        .WithMany("UserInfos")
-                        .HasForeignKey("EmploymentTypeId");
-
                     b.HasOne("ICH.DAL.Entities.General.Location", "Location")
                         .WithMany("UserInfos")
                         .HasForeignKey("LocationId");
 
-                    b.HasOne("ICH.DAL.Entities.Vacancy.WorkType", "WorkType")
-                        .WithMany("UserInfos")
-                        .HasForeignKey("WorkTypeId");
-
-                    b.Navigation("Category");
-
-                    b.Navigation("EmploymentType");
-
                     b.Navigation("Location");
-
-                    b.Navigation("WorkType");
                 });
 
             modelBuilder.Entity("ICH.DAL.Entities.Vacancy.Vacancy", b =>
@@ -365,21 +319,6 @@ namespace ICH.DAL.Migrations
                     b.Navigation("User");
 
                     b.Navigation("WorkType");
-                });
-
-            modelBuilder.Entity("SpecialCategoryUserInfo", b =>
-                {
-                    b.HasOne("ICH.DAL.Entities.Vacancy.SpecialCategory", null)
-                        .WithMany()
-                        .HasForeignKey("SpecialCategoriesSpecialCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ICH.DAL.Entities.User.UserInfo", null)
-                        .WithMany()
-                        .HasForeignKey("UserInfosUserInfoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("SpecialCategoryVacancy", b =>
@@ -421,22 +360,16 @@ namespace ICH.DAL.Migrations
 
             modelBuilder.Entity("ICH.DAL.Entities.Vacancy.Category", b =>
                 {
-                    b.Navigation("UserInfos");
-
                     b.Navigation("Vacancies");
                 });
 
             modelBuilder.Entity("ICH.DAL.Entities.Vacancy.EmploymentType", b =>
                 {
-                    b.Navigation("UserInfos");
-
                     b.Navigation("Vacancies");
                 });
 
             modelBuilder.Entity("ICH.DAL.Entities.Vacancy.WorkType", b =>
                 {
-                    b.Navigation("UserInfos");
-
                     b.Navigation("Vacancies");
                 });
 #pragma warning restore 612, 618
