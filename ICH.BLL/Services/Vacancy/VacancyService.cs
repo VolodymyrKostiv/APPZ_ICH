@@ -107,7 +107,7 @@ namespace ICH.BLL.Services.Vacancy
                     }
                 }
 
-                if (filters.SelectedSpecialCategories != null)
+                if (filters.SelectedSpecialCategories != null && filters.SelectedSpecialCategories.Count() != 0)
                 {
                     vacancies = vacancies.Where(y => y.SpecialCategories.Any(x =>
                     filters.SelectedSpecialCategories.Any(z => z.SpecialCategoryId == x.SpecialCategoryId))).ToList();
@@ -117,6 +117,9 @@ namespace ICH.BLL.Services.Vacancy
                     }
                 }
             }
+
+            var currentTime = DateTime.Now;
+            vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < 365);
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
 

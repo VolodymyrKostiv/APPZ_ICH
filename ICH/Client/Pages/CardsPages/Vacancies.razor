@@ -8,14 +8,24 @@
 
 @inject HttpClient Http
 
+<style>
+    .divBadge {
+        font-size: 14px;
+    }
+    hr.filters {
+        border-top: 1px solid red;
+        width: 50%;
+    }
+</style>
+
 @if (!Downloading)
 {
     <div class="col">
         <div class="row">
-            <div class="col-3">
+            <div class="col-3 offset-1">
                 <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
             </div>
-            <div class="col-3 align-content-center">
+            <div class="col-3">
                 <HxSelect Data="@Locations"
                       InputGroupStartText="Місто"
                       @bind-Value="@SelectedLocation"
@@ -26,48 +36,140 @@
                       TextSelector="@(p => p.Title)"
                       ValueSelector="@(p => p)" />
             </div>
+            <div class="col-2">
+                <HxDropdownButtonGroup>
+                    <HxDropdownToggleButton Color="ThemeColor.Primary">
+                        Сортування
+                    </HxDropdownToggleButton>
+                    <HxDropdownMenu>
+                        <HxDropdownItem OnClick="OnUpSortChosen">
+                            @if (!IsDownSort)
+                            {
+                                <b>За зростанням</b>
+                            }
+                            else
+                            {
+                                <div>За зростанням</div>
+                            }
+                        </HxDropdownItem>
+                        <HxDropdownItem OnClick="OnDownSortChosen">
+                            @if (IsDownSort)
+                            {
+                                <b>За спаданням</b>
+                            }
+                            else
+                            {
+                                <div>За спаданням</div>
+                            }
+                        </HxDropdownItem>
+                        <HxDropdownDivider />
+                        <HxDropdownItem OnClick="OnDateSortEnabled">
+                            @if (IsDateSort)
+                            {
+                                <b>За датою</b>
+                            }
+                            else
+                            {
+                                <div>За датою</div>
+                            }
+                        </HxDropdownItem>
+                        <HxDropdownItem OnClick="OnSalarySortEnabled">
+                            @if (!IsDateSort)
+                            {
+                                <b>За зарплатнею</b>
+                            }
+                            else
+                            {
+                                <div>За зарплатнею</div>
+                            }
+                        </HxDropdownItem>
+                    </HxDropdownMenu>
+                </HxDropdownButtonGroup>
+            </div>
             <div class="col-3">
-                <HxButton Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="OnSearchClicked" />
+                <div class="row">
+                    <div class="col-6">
+                        <div class="row">
+                            <HxButton Icon="BootstrapIcon.Search" Text="Знайти" Size="ButtonSize.Regular" Color="ThemeColor.Danger" OnClick="OnSearchClicked" />
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="row mt-4">
-            <div class="col-9">
-                @if (_vacancies != null)
+            <div class="col-8 offset-1">
+                @if (!DownloadingVacancies && _vacancies != null)
                 {
-                    <div style="height: 800px; overflow-y: scroll;">
-                        <Virtualize Items="@_vacancies" Context="vacancy">
-                            @foreach (var vacancy in _vacancies)
-                            {
-                                <div class="row mt-2">
-                                    <div class="col ml-1 me-2">
-                                        <HxCard>
-                                            <BodyTemplate>
-                                                <HxCardTitle style="color: cornflowerblue">@vacancy.Title</HxCardTitle>
-                                                <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
-                                                <HxCardSubtitle>@vacancy.Company, @vacancy?.Location.Title</HxCardSubtitle>
-                                                <HxCardText>@vacancy?.EmploymentType.Title</HxCardText>
-                                                <HxCardText>@vacancy.Description</HxCardText>
-                                                <div class=" flex-row align-content-end " style="text-align: right;">
-                                                    <HxCardText>
-                                                        <small class="text-muted">@((DateTime.Now.Subtract(@vacancy.CreationTime).Days / 7).ToString() + " тиж. тому")</small>
-                                                    </HxCardText>
-                                                </div>
-                                            </BodyTemplate>
-                                        </HxCard>
-                                    </div>
-                                </div>
-                            }
-                        </Virtualize>
-                    </div>
+                    <h4 style="margin-left: 20px">
+                        @_vacancies.Count вакансій
+                    </h4>
+                    <Virtualize Items="@_vacancies" Context="vacancy">
+                        <div class="row mt-2">
+                            <div class="col ml-1 me-2">
+                                <HxCard>
+                                    <BodyTemplate>
+                                        <HxCardTitle>
+                                            <HxNavLink>@vacancy.Title</HxNavLink>
+                                        </HxCardTitle>
+                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                        <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
+                                        <HxCardText>@vacancy.Description</HxCardText>
+                                        @foreach (var badge in vacancy.SpecialCategories)
+                                        {
+                                            @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(0)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                            else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(1)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Danger">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(1)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                            else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(2)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Warning">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(2)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                            else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(3)?.SpecialCategoryId)
+                                            {
+                                                <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Info">
+                                                    <div class="divBadge">
+                                                        @SpecialCategories?.ElementAtOrDefault(3)?.Title
+                                                    </div>
+                                                </HxBadge>
+                                            }
+                                        }
+                                        <div class="flex-row align-content-end " style="text-align: right;">
+                                            <HxCardText>
+                                                <small class="text-muted">@((DateTime.Now.Subtract(@vacancy.CreationTime).Days / 7).ToString() + " тиж. тому")</small>
+                                            </HxCardText>
+                                        </div>
+                                    </BodyTemplate>
+                                </HxCard>
+                            </div>
+                        </div>
+                    </Virtualize>
                 }
                 else
                 {
-                    <HxSpinner Color="ThemeColor.Primary" />
+                    <div class="col-2 align-items-center justify-content-center">
+                        <HxSpinner Color="ThemeColor.Primary" />
+                    </div>
                 }
             </div>
             <div class="col-3">
-                <div class="row">
+                <div class="row mb-1">
                     <HxCheckboxList TItem="CategoryViewModel"
                                 TValue="CategoryViewModel"
                                 Data="Categories"
@@ -76,16 +178,18 @@
                                 @bind-Value=@SelectedCategories
                                 Label="Категорія" />
                 </div>
-                <div class="row">
+                <hr class="filters"/>
+                <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="SpecialCategoryViewModel"
                                 TValue="SpecialCategoryViewModel"
                                 Data="SpecialCategories"
                                 ItemValueSelector="@(x => x)"
                                 ItemTextSelector="@(x => x.Title)"
                                 @bind-Value=@SelectedSpecialCategories
-                                Label="Спец категорії" />
+                                Label="Підходить" />
                 </div>
-                <div class="row">
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="EmploymentTypeViewModel"
                                 TValue="EmploymentTypeViewModel"
                                 Data="EmploymentTypes"
@@ -94,14 +198,23 @@
                                 @bind-Value=@SelectedEmploymentTypes
                                 Label="Тип зайнятості" />
                 </div>
-                <div class="row">
+                <hr class="filters" />
+                <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="WorkTypeViewModel"
                                 TValue="WorkTypeViewModel"
                                 Data="WorkTypes"
                                 ItemValueSelector="@(x => x)"
                                 ItemTextSelector="@(x => x.Title)"
                                 @bind-Value=@SelectedWorkTypes
-                                Label="Робота" />
+                                Label="Характер роботи" />
+                </div>
+                <hr class="filters" />
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div class="row">
+                            <HxButton Outline="true" OnClick="OnResetFiltersClicked" Color="ThemeColor.Danger">Скинути</HxButton>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -109,7 +222,9 @@
 }
 else
 {
-    <HxSpinner Color="ThemeColor.Primary" />
+    <div class="col-2 justify-content-center align-items-center">
+        <HxSpinner Color="ThemeColor.Primary" />
+    </div>
 }
 
 @code {
@@ -132,7 +247,11 @@ else
     private List<WorkTypeViewModel> WorkTypes { get; set; }
     private List<WorkTypeViewModel> SelectedWorkTypes { get; set; }
 
+    private bool IsDownSort = true;
+    private bool IsDateSort = true;
+
     private bool Downloading;
+    private bool DownloadingVacancies;
 
     protected override async Task OnInitializedAsync()
     {
@@ -151,7 +270,7 @@ else
 
     private async Task OnSearchClicked()
     {
-        Downloading = true;
+        DownloadingVacancies = true;
 
         VacancySearchFiltersViewModel filters = new VacancySearchFiltersViewModel()
             {
@@ -175,8 +294,86 @@ else
 
         await GetFilteredVacancies(filters);
 
-        Downloading = false;
+        DownloadingVacancies = false;
         StateHasChanged();
+    }
+
+    private async Task OnResetFiltersClicked()
+    {
+        DownloadingVacancies = true;
+
+        SelectedCategories = null;
+        SelectedEmploymentTypes = null;
+        SelectedLocation = null;
+        SelectedSpecialCategories = null;
+        SelectedWorkTypes = null;
+        SearchName = null;
+
+        await GetAllVacancies();
+
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnDownSortChosen()
+    {
+        IsDownSort = true;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnUpSortChosen()
+    {
+        IsDownSort = false;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnDateSortEnabled()
+    {
+        IsDateSort = true;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnSalarySortEnabled()
+    {
+        IsDateSort = false;
+
+        DownloadingVacancies = true;
+        await OnSortTriggerd();
+        DownloadingVacancies = false;
+    }
+
+    private async Task OnSortTriggerd()
+    {
+        if (IsDateSort)
+        {
+            if (IsDownSort)
+            {
+                _vacancies = _vacancies.OrderBy(x => x.CreationTime).ToList();
+            }
+            else
+            {
+                _vacancies = _vacancies.OrderByDescending(x => x.CreationTime).ToList();
+            }
+        }
+        else if (!IsDateSort)
+        {
+            if (IsDownSort)
+            {
+                _vacancies = _vacancies.OrderByDescending(x => x.Salary).ToList();
+            }
+            else
+            {
+                _vacancies = _vacancies.OrderBy(x => x.Salary).ToList();
+            }
+        }
     }
 
     private async Task GetFilteredVacancies(VacancySearchFiltersViewModel filters)
@@ -197,6 +394,8 @@ else
         var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
         _vacancies = (ICollection<VacancyViewModel>)vacancies;
+
+        await OnSortTriggerd();
     }
 
     private async Task GetAllCategories()
