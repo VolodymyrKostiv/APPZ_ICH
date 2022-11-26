@@ -1,10 +1,7 @@
 ﻿using AutoMapper;
+using ICH.BLL.DTOs.User;
 using ICH.BLL.Interfaces.User;
-using ICH.BLL.Interfaces.Vacancy;
-using ICH.BLL.Services.User;
-using ICH.BLL.Services.Vacancy;
 using ICH.Shared.ViewModels.User;
-using ICH.Shared.ViewModels.Vacancy;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ICH.Server.Controllers
@@ -22,14 +19,36 @@ namespace ICH.Server.Controllers
             _userService = userService;
         }
 
-        [HttpGet("Users")]
-        public async Task<IActionResult> GetCategories()
+        /// <summary>
+        /// Get all vacancies
+        /// </summary>
+        /// <returns>List of trps</returns>
+        /// <response code="200">Successful operation</response>
+        [HttpGet("AllTRPs")]
+        public async Task<IActionResult> GetAllTRPs()
         {
-            var users = await _userService.GetAllUsersAsync();
+            var vacancies = await _userService.GetAllTRPs();
 
-            var mappedUsers = _mapper.Map<IEnumerable<UserViewModel>>(users);
+            var mappedVacancies = _mapper.Map<IEnumerable<UserDTO>, IEnumerable<UserViewModel>>(vacancies);
 
-            return Ok(mappedUsers);
+            return Ok(mappedVacancies);
+        }
+
+        ///// <summary>
+        ///// Get filtered vacancies
+        ///// </summary>
+        ///// <returns></returns>
+        ///// <response code="200">Successful operation</response>
+        [HttpPost("FilteredTRPs")]
+        public async Task<IActionResult> GetFilteredVacancies([FromBody] UserSearchFiltersViewModel fiters)
+        {
+            var mappedFilters = _mapper.Map<UserSearchFiltersDTO>(fiters);
+
+            var vacancies = await _userService.GetFilteredTRPs(mappedFilters);
+
+            var mappedVacancies = _mapper.Map<IEnumerable<UserViewModel>>(vacancies);
+
+            return Ok(mappedVacancies);
         }
     }
 }

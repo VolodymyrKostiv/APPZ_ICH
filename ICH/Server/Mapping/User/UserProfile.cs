@@ -11,6 +11,7 @@ namespace ICH.Server.Mapping.User
             CreateMap<UserViewModel, UserDTO>().ReverseMap();
             CreateMap<UserInfoViewModel, UserInfoDTO>().ReverseMap();
             CreateMap<UserTypeViewModel, UserTypeDTO>().ReverseMap();
+            CreateMap<UserSearchFiltersViewModel, UserSearchFiltersDTO>().ReverseMap();
         }
     }
 }

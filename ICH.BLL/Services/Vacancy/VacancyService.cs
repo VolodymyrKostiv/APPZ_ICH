@@ -10,6 +10,7 @@ namespace ICH.BLL.Services.Vacancy
     {
         private readonly IRepositoryWrapper _repoWrapper;
         private readonly IMapper _mapper;
+        private const int ValidVacancyDaysFromCreation = 365;
 
         public VacancyService(IRepositoryWrapper repoWrapper, IMapper mapper)
         {
@@ -26,6 +27,9 @@ namespace ICH.BLL.Services.Vacancy
                     .Include(x => x.SpecialCategories)
                     .Include(x => x.Location)
                     .Include(x => x.WorkType));
+
+            var currentTime = DateTime.Now;
+            vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < ValidVacancyDaysFromCreation);
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
 
@@ -119,7 +123,7 @@ namespace ICH.BLL.Services.Vacancy
             }
 
             var currentTime = DateTime.Now;
-            vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < 365);
+            vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < ValidVacancyDaysFromCreation);
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
 

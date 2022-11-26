@@ -18,9 +18,10 @@
         public static string EmploymentTypesUri { get; } = VacanciesUri + "/EmploymentTypes";
     }
 
-    internal static class UserGlobals
+    internal static class TRPGlobals
     {
-        private static string UsersUri { get; } = Globals.ApiUri + "/User";
-
+        private static string TRPsUri { get; } = Globals.ApiUri + "/User";
+        public static string AllTRPsUri { get; } = TRPsUri + "/AllTRPs";
+        public static string FilteredTRPsUri { get; } = TRPsUri + "/FilteredTRPs";
     }
 }

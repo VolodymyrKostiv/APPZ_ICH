@@ -21,11 +21,21 @@ namespace ICH.BLL.Services.User
             _logger = logger;
         }
 
+        public Task<IEnumerable<UserDTO>> GetAllTRPs()
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IEnumerable<UserDTO>> GetAllUsersAsync()
         {
             _logger.LogInfo($"{System.Reflection.MethodBase.GetCurrentMethod().Name}");
             var res = await _userService.GetAllUsersAsync();
             return res;
+        }
+
+        public Task<IEnumerable<UserDTO>> GetFilteredTRPs(UserSearchFiltersDTO filters)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<UserDTO> GetUserByIdAsync(int id)
