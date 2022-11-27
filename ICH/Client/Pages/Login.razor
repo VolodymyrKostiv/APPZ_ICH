@@ -7,24 +7,22 @@
 @inject NavigationManager NavigationManager
 
 <div class="container">
-    <div class="row justify-content-center">
-        <div class="col-4">
-            <h2>Login</h2>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-4">
-            <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">TRP</HxButton>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-4">
-            <HxButton OnClick="OnWorkerLoginClicked" Color="ThemeColor.Primary">Worker</HxButton>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-4">
-            <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Organization</HxButton>
+    <div class="row justify-content-center mt-5">
+        <div class="col-4 justify-content-center">
+            <div class="row justify-content-center mb-3">
+                <h2 style="justify-content:center; text-align: center;">
+                    Login
+                </h2>
+            </div>
+            <div class="row justify-content-center mb-3">
+                <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">TRP</HxButton>
+            </div>
+            <div class="row justify-content-center mb-3">
+                <HxButton OnClick="OnWorkerLoginClicked" Color="ThemeColor.Primary">Worker</HxButton>
+            </div>
+            <div class="row justify-content-center mb-3">
+                <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Organization</HxButton>
+            </div>
         </div>
     </div>
 </div>
