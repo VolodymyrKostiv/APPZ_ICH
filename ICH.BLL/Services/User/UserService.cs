@@ -130,7 +130,8 @@ namespace ICH.BLL.Services.User
             {
                 if (filters.SearchName != null && filters.SearchName != "")
                 {
-                    vacancies = vacancies.Where(x => x.UserInfo?.Position != null && x.UserInfo.Position.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant()))?.ToList();
+                    vacancies = vacancies.Where(x => (x.UserInfo?.Position != null && x.UserInfo.Position.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant())) ||
+                    (x.UserInfo?.UserName != null && x.UserInfo.UserName.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant())))?.ToList();
                     if (vacancies == null)
                     {
                         return null;

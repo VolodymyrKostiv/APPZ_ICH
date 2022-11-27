@@ -12,6 +12,7 @@
     .divBadge {
         font-size: 14px;
     }
+
     hr.filters {
         border-top: 1px solid red;
         width: 50%;
@@ -99,7 +100,7 @@
 
         <div class="row mt-4">
             <div class="col-8 offset-1">
-                @if (!DownloadingVacancies && _vacancies != null)
+                @if (!DownloadingVacancies && _vacancies != null && _vacancies.Count != 0)
                 {
                     <h4 style="margin-left: 20px">
                         @_vacancies.Count вакансій
@@ -161,10 +162,23 @@
                         </div>
                     </Virtualize>
                 }
-                else
+                else if (_vacancies?.Count == 0)
                 {
-                    <div class="col-2 align-items-center justify-content-center">
-                        <HxSpinner Color="ThemeColor.Primary" />
+                    <HxAlert Color="ThemeColor.Info">
+                        <h5>
+                            За вашим запитом поки немає вакансій
+                        </h5>
+                        <h6>
+                            Спробуйте змінити ключове слово або параметри пошуку
+                        </h6>
+                    </HxAlert>
+                }
+                else if (DownloadingVacancies)
+                {
+                    <div class="row justify-content-center align-items-center">
+                        <div class="col-4 justify-content-center align-items-center">
+                            <HxSpinner Color="ThemeColor.Primary" />
+                        </div>
                     </div>
                 }
             </div>
@@ -178,7 +192,7 @@
                                 @bind-Value=@SelectedCategories
                                 Label="Категорія" />
                 </div>
-                <hr class="filters"/>
+                <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="SpecialCategoryViewModel"
                                 TValue="SpecialCategoryViewModel"
@@ -222,8 +236,10 @@
 }
 else
 {
-    <div class="col-2 justify-content-center align-items-center">
-        <HxSpinner Color="ThemeColor.Primary" />
+    <div class="row justify-content-center align-items-center">
+        <div class="col-4 justify-content-center align-items-center">
+            <HxSpinner Color="ThemeColor.Primary" />
+        </div>
     </div>
 }
 

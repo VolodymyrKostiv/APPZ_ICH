@@ -91,7 +91,7 @@
 
         <div class="row mt-4">
             <div class="col-8 offset-1">
-                @if (!DownloadingVacancies && _users != null)
+                @if (!DownloadingVacancies && _users != null && _users.Count != 0)
                 {
                     <h4 style="margin-left: 20px">
                         @_users.Count резюме
@@ -159,7 +159,18 @@
                         </div>
                     </Virtualize>
                 }
-                else
+                else if (_users?.Count == 0)
+                {
+                    <HxAlert Color="ThemeColor.Info">
+                        <h5>
+                            За вашим запитом поки немає резюме
+                        </h5>
+                        <h6>
+                            Спробуйте змінити ключове слово або параметри пошуку
+                        </h6>
+                    </HxAlert>
+                }
+                else if (DownloadingVacancies)
                 {
                     <div class="col-2 align-items-center justify-content-center">
                         <HxSpinner Color="ThemeColor.Primary" />

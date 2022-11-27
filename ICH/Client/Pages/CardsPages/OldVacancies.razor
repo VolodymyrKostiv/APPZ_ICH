@@ -100,7 +100,7 @@
 
         <div class="row mt-4">
             <div class="col-8 offset-1">
-                @if (!DownloadingVacancies && _vacancies != null)
+                @if (!DownloadingVacancies && _vacancies != null && _vacancies.Count() != 0)
                 {
                     <h4 style="margin-left: 20px">
                         @_vacancies.Count вакансій
@@ -162,7 +162,18 @@
                         </div>
                     </Virtualize>
                 }
-                else
+                else if (_vacancies?.Count == 0)
+                {
+                    <HxAlert Color="ThemeColor.Info">
+                        <h5>
+                            За вашим запитом поки немає вакансій
+                        </h5>
+                        <h6>
+                            Спробуйте змінити ключове слово або параметри пошуку
+                        </h6>
+                    </HxAlert>
+                }
+                else if (DownloadingVacancies)
                 {
                     <div class="col-2 align-items-center justify-content-center">
                         <HxSpinner Color="ThemeColor.Primary" />
