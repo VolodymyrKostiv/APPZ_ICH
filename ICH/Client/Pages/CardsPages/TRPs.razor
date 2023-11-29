@@ -18,6 +18,10 @@
         border-top: 1px solid red;
         width: 50%;
     }
+
+    .filterNames {
+        font-weight: bold;
+    }
 </style>
 
 @if (!Downloading)
@@ -29,14 +33,14 @@
             </div>
             <div class="col-3">
                 <HxSelect Data="@Locations"
-                      InputGroupStartText="Місто"
-                      @bind-Value="@SelectedLocation"
-                      Nullable="true"
-                      NullText="Вся Україна"
-                      TItem="LocationViewModel"
-                      TValue="LocationViewModel"
-                      TextSelector="@(p => p.Title)"
-                      ValueSelector="@(p => p)" />
+                          InputGroupStartText="Місто"
+                          @bind-Value="@SelectedLocation"
+                          Nullable="true"
+                          NullText="Вся Україна"
+                          TItem="LocationViewModel"
+                          TValue="LocationViewModel"
+                          TextSelector="@(p => p.Title)"
+                          ValueSelector="@(p => p)" />
             </div>
             <div class="col-2">
                 <HxDropdownButtonGroup>
@@ -105,47 +109,48 @@
                                         {
                                             <HxCardTitle>
                                                 <HxNavLink>@vacancy.UserInfo.Position</HxNavLink>
-                                            </HxCardTitle>
+                                                </HxCardTitle>
                                             <HxCardSubtitle class="mt-1">@vacancy.UserInfo.UserName</HxCardSubtitle>
                                             <HxCardSubtitle class="mt-1">@vacancy.UserInfo.Category?.Title, @vacancy?.UserInfo.Location?.Title, @vacancy?.UserInfo.EmploymentType?.Title</HxCardSubtitle>
                                             <HxCardText>@vacancy.UserInfo.Description</HxCardText>
                                             @foreach (var badge in vacancy.UserInfo.SpecialCategories)
                                             {
-                                                @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
-                                                {
-                                                    <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
-                                                        <div class="divBadge">
-                                                            @SpecialCategories?.ElementAtOrDefault(0)?.Title
-                                                        </div>
-                                                    </HxBadge>
-                                                }
-                                                else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(1)?.SpecialCategoryId)
-                                                {
-                                                    <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Danger">
-                                                        <div class="divBadge">
-                                                            @SpecialCategories?.ElementAtOrDefault(1)?.Title
-                                                        </div>
-                                                    </HxBadge>
-                                                }
-                                                else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(2)?.SpecialCategoryId)
-                                                {
-                                                    <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Warning">
-                                                        <div class="divBadge">
-                                                            @SpecialCategories?.ElementAtOrDefault(2)?.Title
-                                                        </div>
-                                                    </HxBadge>
-                                                }
-                                                else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(3)?.SpecialCategoryId)
-                                                {
-                                                    <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Info">
-                                                        <div class="divBadge">
-                                                            @SpecialCategories?.ElementAtOrDefault(3)?.Title
-                                                        </div>
-                                                    </HxBadge>
-                                                }
+                                                <div style="margin-right: 3px; display: flex;">
+                                                    @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
+                                                    {
+                                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
+                                                            <div class="divBadge">
+                                                                @SpecialCategories?.ElementAtOrDefault(0)?.Title
+                                                            </div>
+                                                        </HxBadge>
+                                                    }
+                                                    else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(1)?.SpecialCategoryId)
+                                                    {
+                                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Danger">
+                                                            <div class="divBadge">
+                                                                @SpecialCategories?.ElementAtOrDefault(1)?.Title
+                                                            </div>
+                                                        </HxBadge>
+                                                    }
+                                                    else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(2)?.SpecialCategoryId)
+                                                    {
+                                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Warning">
+                                                            <div class="divBadge">
+                                                                @SpecialCategories?.ElementAtOrDefault(2)?.Title
+                                                            </div>
+                                                        </HxBadge>
+                                                    }
+                                                    else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(3)?.SpecialCategoryId)
+                                                    {
+                                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Info">
+                                                            <div class="divBadge">
+                                                                @SpecialCategories?.ElementAtOrDefault(3)?.Title
+                                                            </div>
+                                                        </HxBadge>
+                                                    }
+                                                </div>
                                             }
                                             <div class="flex-row align-content-end " style="text-align: right;">
-
                                                 <HxCardText>
                                                     <small class="text-muted">
                                                         @((DateTime.Now.Subtract((DateTime)vacancy.UserInfo.CreationTime).Days / 7).ToString() + " тиж. тому")
@@ -184,42 +189,46 @@
             <div class="col-3">
                 <div class="row mb-1">
                     <HxCheckboxList TItem="CategoryViewModel"
-                                TValue="CategoryViewModel"
-                                Data="Categories"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedCategories
-                                Label="Категорія" />
+                                    TValue="CategoryViewModel"
+                                    Data="Categories"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedCategories
+                                    Label="Категорія"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="SpecialCategoryViewModel"
-                                TValue="SpecialCategoryViewModel"
-                                Data="SpecialCategories"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedSpecialCategories
-                                Label="Підходить" />
+                                    TValue="SpecialCategoryViewModel"
+                                    Data="SpecialCategories"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedSpecialCategories
+                                    Label="Підходить"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="EmploymentTypeViewModel"
-                                TValue="EmploymentTypeViewModel"
-                                Data="EmploymentTypes"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedEmploymentTypes
-                                Label="Тип зайнятості" />
+                                    TValue="EmploymentTypeViewModel"
+                                    Data="EmploymentTypes"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedEmploymentTypes
+                                    Label="Тип зайнятості"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="WorkTypeViewModel"
-                                TValue="WorkTypeViewModel"
-                                Data="WorkTypes"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedWorkTypes
-                                Label="Характер роботи" />
+                                    TValue="WorkTypeViewModel"
+                                    Data="WorkTypes"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedWorkTypes
+                                    Label="Характер роботи"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-4">

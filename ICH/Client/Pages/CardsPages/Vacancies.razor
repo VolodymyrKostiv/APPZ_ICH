@@ -17,6 +17,10 @@
         border-top: 1px solid red;
         width: 50%;
     }
+
+    .filterNames {
+        font-weight: bold;
+    }
 </style>
 
 @if (!Downloading)
@@ -28,14 +32,14 @@
             </div>
             <div class="col-3">
                 <HxSelect Data="@Locations"
-                      InputGroupStartText="Місто"
-                      @bind-Value="@SelectedLocation"
-                      Nullable="true"
-                      NullText="Вся Україна"
-                      TItem="LocationViewModel"
-                      TValue="LocationViewModel"
-                      TextSelector="@(p => p.Title)"
-                      ValueSelector="@(p => p)" />
+                          InputGroupStartText="Місто"
+                          @bind-Value="@SelectedLocation"
+                          Nullable="true"
+                          NullText="Вся Україна"
+                          TItem="LocationViewModel"
+                          TValue="LocationViewModel"
+                          TextSelector="@(p => p.Title)"
+                          ValueSelector="@(p => p)" />
             </div>
             <div class="col-2">
                 <HxDropdownButtonGroup>
@@ -112,11 +116,11 @@
                                     <BodyTemplate>
                                         <HxCardTitle>
                                             <HxNavLink>@vacancy.Title</HxNavLink>
-                                        </HxCardTitle>
-                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                            </HxCardTitle>
+                                            <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
                                         <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
-                                        <HxCardText>@vacancy.Description</HxCardText>
-                                        @foreach (var badge in vacancy.SpecialCategories)
+                                            <HxCardText>@vacancy.Description</HxCardText>
+                                            @foreach (var badge in vacancy.SpecialCategories)
                                         {
                                             @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
                                             {
@@ -187,42 +191,46 @@
             <div class="col-3">
                 <div class="row mb-1">
                     <HxCheckboxList TItem="CategoryViewModel"
-                                TValue="CategoryViewModel"
-                                Data="Categories"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedCategories
-                                Label="Категорія" />
+                                    TValue="CategoryViewModel"
+                                    Data="Categories"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedCategories
+                                    Label="Категорія"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="SpecialCategoryViewModel"
-                                TValue="SpecialCategoryViewModel"
-                                Data="SpecialCategories"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedSpecialCategories
-                                Label="Підходить" />
+                                    TValue="SpecialCategoryViewModel"
+                                    Data="SpecialCategories"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedSpecialCategories
+                                    Label="Підходить"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="EmploymentTypeViewModel"
-                                TValue="EmploymentTypeViewModel"
-                                Data="EmploymentTypes"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedEmploymentTypes
-                                Label="Тип зайнятості" />
+                                    TValue="EmploymentTypeViewModel"
+                                    Data="EmploymentTypes"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedEmploymentTypes
+                                    Label="Тип зайнятості"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-1 mb-1">
                     <HxCheckboxList TItem="WorkTypeViewModel"
-                                TValue="WorkTypeViewModel"
-                                Data="WorkTypes"
-                                ItemValueSelector="@(x => x)"
-                                ItemTextSelector="@(x => x.Title)"
-                                @bind-Value=@SelectedWorkTypes
-                                Label="Характер роботи" />
+                                    TValue="WorkTypeViewModel"
+                                    Data="WorkTypes"
+                                    ItemValueSelector="@(x => x)"
+                                    ItemTextSelector="@(x => x.Title)"
+                                    @bind-Value=@SelectedWorkTypes
+                                    Label="Характер роботи"
+                                    LabelCssClass="filterNames" />
                 </div>
                 <hr class="filters" />
                 <div class="row mt-4">
