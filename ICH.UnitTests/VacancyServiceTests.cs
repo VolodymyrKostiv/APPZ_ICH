@@ -1,7 +1,12 @@
 ﻿using AutoMapper;
+using ICH.BLL.DTOs.User;
 using ICH.BLL.DTOs.Vacancy;
+using ICH.BLL.Interfaces.User;
 using ICH.BLL.Interfaces.Vacancy;
+using ICH.BLL.Services.User;
 using ICH.BLL.Services.Vacancy;
+using ICH.DAL;
+using ICH.DAL.Entities.User;
 using ICH.DAL.Entities.Vacancy;
 using ICH.DAL.Repositories.Interfaces.Base;
 using Microsoft.EntityFrameworkCore.Query;
@@ -16,11 +21,14 @@ namespace ICH.UnitTests
         private readonly IVacancyService _vacancyService;
         private readonly Mock<IRepositoryWrapper> _repoWrapperMock;
         private readonly Mock<IMapper> _mapperMock;
+        private readonly Mock<ICHDBContext> _dbContextMock;
+
 
         public VacancyServiceTests()
         {
             _mapperMock = new Mock<IMapper>();
             _repoWrapperMock = new Mock<IRepositoryWrapper>();
+            _dbContextMock = new Mock<ICHDBContext>();
 
             _vacancyService = new VacancyService(_repoWrapperMock.Object, _mapperMock.Object);
         }
@@ -29,8 +37,8 @@ namespace ICH.UnitTests
         public async Task GetAllVacanciesAsync_ReturnsEmptyList()
         {
             //Arrange
-            IEnumerable<Vacancy> vacancies = Enumerable.Empty<Vacancy>();
-            IEnumerable<VacancyDTO> vacancyDTOs = Enumerable.Empty<VacancyDTO>();
+            var vacancies = Enumerable.Empty<Vacancy>();
+            var vacancyDTOs = Enumerable.Empty<VacancyDTO>();
 
             _repoWrapperMock
                 .Setup(r => r.VacancyRepository.GetAllAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
@@ -47,58 +55,83 @@ namespace ICH.UnitTests
             Assert.IsInstanceOfType(result, typeof(IEnumerable<VacancyDTO>));
             Assert.IsNotNull(result);
             Assert.IsFalse(result.Any());
+
+
+            _repoWrapperMock.Verify(repo => repo.VacancyRepository.GetAllAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
+              It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()),
+            Times.Once);
+
+            _mapperMock.Verify(mapper => mapper.Map<IEnumerable<VacancyDTO>>(vacancies), Times.Once);
         }
 
         [TestMethod]
         public async Task GetAllVacanciesAsync_ReturnsFilledList()
         {
             //Arrange
-            IEnumerable<Vacancy> vacancies = _testVacancies;
-            IEnumerable<VacancyDTO> vacancyDTOs = _testVacancyDTOs;
+            var vacancies = _testVacancies;
+            var vacancyDTOs = _testVacancyDTOs;
+            var vacancyService = _vacancyService;
 
-            _repoWrapperMock
-                .Setup(r => r.VacancyRepository.GetAllAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
-                It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
-                .ReturnsAsync(vacancies);
-            _mapperMock.Setup(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyDTO>>(It.IsAny<IEnumerable<Vacancy>>()))
+            _repoWrapperMock.Setup(repo => repo.VacancyRepository.GetAllAsync(
+                        It.IsAny<Expression<Func<Vacancy, bool>>>(),
+                        It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
+                        .ReturnsAsync(vacancies);
+
+            _mapperMock.Setup(mapper => mapper.Map<IEnumerable<VacancyDTO>>(vacancies))
                 .Returns(vacancyDTOs);
 
-            //Act
-            var result = await _vacancyService.GetAllVacanciesAsync();
+            // Act
+            var result = await vacancyService.GetAllVacanciesAsync();
 
             //Assert
-            Assert.IsInstanceOfType(result, typeof(IEnumerable<VacancyDTO>));
             Assert.IsNotNull(result);
-            Assert.IsTrue(Enumerable.SequenceEqual<VacancyDTO>(vacancyDTOs, result));
+            Assert.IsInstanceOfType(result, typeof(IEnumerable<VacancyDTO>));
+            Assert.AreEqual(vacancyDTOs.Count(), result.Count());
+
+            _repoWrapperMock.Verify(repo => repo.VacancyRepository.GetAllAsync(
+            It.IsAny<Expression<Func<Vacancy, bool>>>(),
+            It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()),
+            Times.Once);
+
+            _mapperMock.Verify(mapper => mapper.Map<IEnumerable<VacancyDTO>>(vacancies), Times.Once);
         }
 
         [TestMethod]
         [DataRow(1)]
-        public async Task GetVacancyByIdAsync_Found(int value)
+        [DataRow(3)]
+        [DataRow(11111)]
+        public async Task GetVacancyByIdAsync_Found(int id)
         {
             //Arrange
-            Vacancy vacancy = _testVacancy;
-            VacancyDTO vacancyDTO = _testVacancyDTO;
+            var vacancies = _testVacancy;
+            var vacancyDTOs = _testVacancyDTO;
+            var vacancyService = _vacancyService;
 
             _repoWrapperMock
-                .Setup(r => r.VacancyRepository.GetFirstOrDefaultAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
-                It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
-                .ReturnsAsync(vacancy);
-            _mapperMock.Setup(m => m.Map<Vacancy, VacancyDTO>(It.IsAny<Vacancy>()))
-                .Returns(vacancyDTO);
+                .Setup(repo => repo.VacancyRepository.GetFirstOrDefaultAsync(
+                    It.IsAny<Expression<Func<Vacancy, bool>>>(),
+                    It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
+                .ReturnsAsync(vacancies);
+
+            _mapperMock
+                .Setup(mapper => mapper.Map<VacancyDTO>(vacancies))
+                .Returns(vacancyDTOs);
 
             //Act
-            var result = await _vacancyService.GetVacancyByIdAsync(value);
+            var result = await vacancyService.GetVacancyByIdAsync(id);
 
             //Assert
             Assert.IsInstanceOfType(result, typeof(VacancyDTO));
             Assert.IsNotNull(result);
-            Assert.AreEqual(vacancyDTO, result);
+            Assert.AreEqual(vacancyDTOs, result);
+
+            _mapperMock.Verify(mapper => mapper.Map<VacancyDTO>(vacancies), Times.Once);
         }
 
         [TestMethod]
-        [DataRow(0)]
-        [DataRow(-10)]
+        [DataRow(-1)]
+        [DataRow(-5)]
+        [DataRow(-1111111)]
         public async Task GetVacancyByIdAsync_NotFound(int value)
         {
             //Arrange
@@ -116,133 +149,25 @@ namespace ICH.UnitTests
             var result = await _vacancyService.GetVacancyByIdAsync(value);
 
             //Assert
-            Assert.IsInstanceOfType(result, typeof(VacancyDTO));
             Assert.IsNull(result);
         }
 
-        //[DataRow("Programmer", "Full time", "Date ascending")]
-        //[TestMethod]
-        //public async Task GetFilteredVacanciesAsync_ValidParameters_ReturnsFilledList(string searchName, string filter, string sort)
-        //{
-        //    //Arrange
-        //    IEnumerable<Vacancy> vacancies = _testVacancies;
-        //    IEnumerable<VacancyDTO> vacancyDTOs = _testVacancyDTOs;
+        private readonly Vacancy _testVacancy = new Vacancy { VacancyId = 1, Title = "Programmer", Company = "Abto", };
 
-        //    _repoWrapperMock
-        //        .Setup(r => r.VacancyRepository.GetAllAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
-        //        It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
-        //        .ReturnsAsync(vacancies);
-        //    _mapperMock.Setup(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyDTO>>(It.IsAny<IEnumerable<Vacancy>>()))
-        //        .Returns(vacancyDTOs);
-
-        //    //Act
-        //    var result = null;//await _vacancyService.GetFilteredVacanciesAsync(searchName, filter, sort);
-
-        //    //Assert
-        //    Assert.IsInstanceOfType(result, typeof(IEnumerable<VacancyDTO>));
-        //    Assert.IsNotNull(result);
-        //    Assert.IsTrue(Enumerable.SequenceEqual<VacancyDTO>(vacancyDTOs, result));
-        //}
-
-        //[DataRow("Hello Biden", "we need 5 billion rockets", "to bomb Donetsk children")]
-        //[TestMethod]
-        //public async Task GetFilteredVacanciesAsync_ValidParameters_ReturnsEmptyList(string searchName, string filter, string sort)
-        //{
-        //    //Arrange
-        //    IEnumerable<Vacancy> vacancies = Enumerable.Empty<Vacancy>();
-        //    IEnumerable<VacancyDTO> vacancyDTOs = Enumerable.Empty<VacancyDTO>();
-
-        //    _repoWrapperMock
-        //        .Setup(r => r.VacancyRepository.GetAllAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
-        //        It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
-        //        .ReturnsAsync(vacancies);
-        //    _mapperMock.Setup(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyDTO>>(It.IsAny<IEnumerable<Vacancy>>()))
-        //        .Returns(vacancyDTOs);
-
-        //    //Act
-        //    var result = null;// await _vacancyService.GetFilteredVacanciesAsync(searchName, filter, sort);
-
-        //    //Assert
-        //    Assert.IsInstanceOfType(result, typeof(IEnumerable<VacancyDTO>));
-        //    Assert.IsNotNull(result);
-        //    Assert.IsFalse(result.Any());
-        //}
-
-        //[DataRow(null, null, null)]
-        //[TestMethod]
-        //public async Task GetFilteredVacanciesAsync_InvalidParameters_ThrowsArgumentNullException(string searchName, string filter, string sort)
-        //{
-        //    //Arrange
-        //    IEnumerable<Vacancy> vacancies = Enumerable.Empty<Vacancy>();
-        //    IEnumerable<VacancyDTO> vacancyDTOs = Enumerable.Empty<VacancyDTO>();
-
-        //    _repoWrapperMock
-        //        .Setup(r => r.VacancyRepository.GetAllAsync(It.IsAny<Expression<Func<Vacancy, bool>>>(),
-        //        It.IsAny<Func<IQueryable<Vacancy>, IIncludableQueryable<Vacancy, object>>>()))
-        //        .ReturnsAsync(It.IsAny<IEnumerable<Vacancy>>);
-        //    _mapperMock.Setup(m => m.Map<IEnumerable<Vacancy>, IEnumerable<VacancyDTO>>(It.IsAny<IEnumerable<Vacancy>>()))
-        //        .Returns(It.IsAny<IEnumerable<VacancyDTO>>);
-
-        //    //Assert
-        //    await Assert.ThrowsExceptionAsync<ArgumentNullException>(() => _vacancyService.GetFilteredVacanciesAsync(searchName, filter, sort));
-        //}
-
-        private readonly Vacancy _testVacancy = new Vacancy
-        {
-            VacancyId = 1,
-            Title = "Programmer",
-            Company = "Abto",
-        };
-
-        private readonly VacancyDTO _testVacancyDTO = new VacancyDTO
-        {
-            VacancyId = 1,
-            Title = "Programmer",
-            Company = "Abto",
-        };
+        private readonly VacancyDTO _testVacancyDTO = new VacancyDTO { VacancyId = 1, Title = "Programmer", Company = "Abto", };
 
         private readonly IEnumerable<Vacancy> _testVacancies = new List<Vacancy>
-        {
-            new Vacancy
-            {
-                VacancyId = 1,
-                Title = "Programmer",
-                Company = "Abto",
-            },
-            new Vacancy
-            {
-                VacancyId = 2,
-                Title = "Tester",
-                Company = "Abto",
-            },
-            new Vacancy
-            {
-                VacancyId = 3,
-                Title = "Project manager",
-                Company = "Abto",
-            },
+        { 
+            new Vacancy { VacancyId = 1, Title = "Programmer", Company = "Abto", },
+            new Vacancy { VacancyId = 2, Title = "Tester", Company = "Abto", },
+            new Vacancy { VacancyId = 3, Title = "Project manager", Company = "Abto", },
         };
 
         private readonly IEnumerable<VacancyDTO> _testVacancyDTOs = new List<VacancyDTO>
         {
-            new VacancyDTO
-            {
-                VacancyId = 1,
-                Title = "Programmer",
-                Company = "Abto",
-            },
-            new VacancyDTO
-            {
-                VacancyId = 2,
-                Title = "Tester",
-                Company = "Abto",
-            },
-            new VacancyDTO
-            {
-                VacancyId = 3,
-                Title = "Project manager",
-                Company = "Abto",
-            },
+            new VacancyDTO { VacancyId = 1, Title = "Programmer", Company = "Abto", },
+            new VacancyDTO { VacancyId = 2, Title = "Tester", Company = "Abto", },
+            new VacancyDTO { VacancyId = 3, Title = "Project manager", Company = "Abto", },
         };
     }
 }
