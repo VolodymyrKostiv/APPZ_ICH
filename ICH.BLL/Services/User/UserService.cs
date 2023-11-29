@@ -98,7 +98,7 @@ namespace ICH.BLL.Services.User
                         .ThenInclude(y => y.Location)
                     .Include(x => x.UserInfo)
                         .ThenInclude(y => y.SpecialCategories),
-                    predicate: x => x.UserType.Title == "TRP");
+                    predicate: x => x.UserType.Title == "Employee");
 
                 map = _mapper.Map<IEnumerable<UserDTO>>(users);
             }
@@ -112,7 +112,7 @@ namespace ICH.BLL.Services.User
 
         public async Task<IEnumerable<UserDTO>> GetFilteredTRPs(UserSearchFiltersDTO filters)
         {
-            var vacancies = await _repoWrapper.UserRepository.GetAllAsync(
+            var users = await _repoWrapper.UserRepository.GetAllAsync(
              include: source => source
                 .Include(x => x.UserInfo)
                     .ThenInclude(y => y.WorkType)
@@ -124,15 +124,15 @@ namespace ICH.BLL.Services.User
                     .ThenInclude(y => y.Location)
                 .Include(x => x.UserInfo)
                     .ThenInclude(y => y.SpecialCategories),
-             predicate: x => x.UserType.Title == "TRP");
+             predicate: x => x.UserType.Title == "Employee");
 
             if (filters != null)
             {
                 if (filters.SearchName != null && filters.SearchName != "")
                 {
-                    vacancies = vacancies.Where(x => (x.UserInfo?.Position != null && x.UserInfo.Position.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant())) ||
+                    users = users.Where(x => (x.UserInfo?.Position != null && x.UserInfo.Position.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant())) ||
                     (x.UserInfo?.UserName != null && x.UserInfo.UserName.ToLowerInvariant().Contains(filters.SearchName.ToLowerInvariant())))?.ToList();
-                    if (vacancies == null)
+                    if (users == null)
                     {
                         return null;
                     }
@@ -140,8 +140,8 @@ namespace ICH.BLL.Services.User
 
                 if (filters.SelectedLocation != null)
                 {
-                    vacancies = vacancies.Where(x => x.UserInfo?.Location != null && x.UserInfo?.Location.LocationId == filters.SelectedLocation.LocationId)?.ToList();
-                    if (vacancies == null)
+                    users = users.Where(x => x.UserInfo?.Location != null && x.UserInfo?.Location.LocationId == filters.SelectedLocation.LocationId)?.ToList();
+                    if (users == null)
                     {
                         return null;
                     }
@@ -149,8 +149,8 @@ namespace ICH.BLL.Services.User
 
                 if (filters.SelectedEmploymentTypes != null && filters.SelectedEmploymentTypes.Count() != 0)
                 {
-                    vacancies = vacancies.Where(y => filters.SelectedEmploymentTypes.Any(x => y.UserInfo?.EmploymentType != null && x.EmploymentTypeId == y.UserInfo.EmploymentType.EmploymentTypeId))?.ToList();
-                    if (vacancies == null)
+                    users = users.Where(y => filters.SelectedEmploymentTypes.Any(x => y.UserInfo?.EmploymentType != null && x.EmploymentTypeId == y.UserInfo.EmploymentType.EmploymentTypeId))?.ToList();
+                    if (users == null)
                     {
                         return null;
                     }
@@ -158,8 +158,8 @@ namespace ICH.BLL.Services.User
 
                 if (filters.SelectedCategories != null && filters.SelectedCategories.Count() != 0)
                 {
-                    vacancies = vacancies.Where(y => filters.SelectedCategories.Any(x => y.UserInfo?.Category != null && x.CategoryId == y.UserInfo.Category.CategoryId))?.ToList();
-                    if (vacancies == null)
+                    users = users.Where(y => filters.SelectedCategories.Any(x => y.UserInfo?.Category != null && x.CategoryId == y.UserInfo.Category.CategoryId))?.ToList();
+                    if (users == null)
                     {
                         return null;
                     }
@@ -167,8 +167,8 @@ namespace ICH.BLL.Services.User
 
                 if (filters.SelectedWorkTypes != null && filters.SelectedWorkTypes.Count() != 0)
                 {
-                    vacancies = vacancies.Where(y => filters.SelectedWorkTypes.Any(x => y.UserInfo?.WorkType != null && x.WorkTypeId == y.UserInfo.WorkType.WorkTypeId))?.ToList();
-                    if (vacancies == null)
+                    users = users.Where(y => filters.SelectedWorkTypes.Any(x => y.UserInfo?.WorkType != null && x.WorkTypeId == y.UserInfo.WorkType.WorkTypeId))?.ToList();
+                    if (users == null)
                     {
                         return null;
                     }
@@ -176,9 +176,9 @@ namespace ICH.BLL.Services.User
 
                 if (filters.SelectedSpecialCategories != null && filters.SelectedSpecialCategories.Count() != 0)
                 {
-                    vacancies = vacancies.Where(y => y.UserInfo?.SpecialCategories != null && y.UserInfo.SpecialCategories.Any(x =>
+                    users = users.Where(y => y.UserInfo?.SpecialCategories != null && y.UserInfo.SpecialCategories.Any(x =>
                     filters.SelectedSpecialCategories.Any(z => z.SpecialCategoryId == x.SpecialCategoryId))).ToList();
-                    if (vacancies == null)
+                    if (users == null)
                     {
                         return null;
                     }
@@ -186,11 +186,10 @@ namespace ICH.BLL.Services.User
             }
 
             var currentTime = DateTime.Now;
-            vacancies = vacancies.Where(x => currentTime.Subtract((DateTime)x.UserInfo?.CreationTime).TotalDays < ValidTRPDaysFromCreation);
 
-            var mappedVacancies = _mapper.Map<IEnumerable<UserDTO>>(vacancies);
+            var mappedUsers = _mapper.Map<IEnumerable<UserDTO>>(users);
 
-            return mappedVacancies;
+            return mappedUsers;
         }
     }
 }

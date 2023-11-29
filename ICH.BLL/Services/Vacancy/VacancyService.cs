@@ -29,7 +29,7 @@ namespace ICH.BLL.Services.Vacancy
                     .Include(x => x.WorkType));
 
             var currentTime = DateTime.Now;
-            vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < ValidVacancyDaysFromCreation);
+            //vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < ValidVacancyDaysFromCreation);
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
 
@@ -123,7 +123,6 @@ namespace ICH.BLL.Services.Vacancy
             }
 
             var currentTime = DateTime.Now;
-            vacancies = vacancies.Where(x => currentTime.Subtract(x.CreationTime).TotalDays < ValidVacancyDaysFromCreation);
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyDTO>>(vacancies);
 
@@ -159,7 +158,7 @@ namespace ICH.BLL.Services.Vacancy
                     .Include(x => x.Location)
                     .Include(x => x.WorkType));
 
-            var mappedVacancy = _mapper.Map<DAL.Entities.Vacancy.Vacancy, VacancyDTO>(vacancy);
+            var mappedVacancy = _mapper.Map<VacancyDTO>(vacancy);
 
             return mappedVacancy;
         }
