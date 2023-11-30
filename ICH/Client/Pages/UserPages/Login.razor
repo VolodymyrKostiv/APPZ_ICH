@@ -1,0 +1,91 @@
+﻿@page "/"
+
+@using ICH.Client.API;
+@using ICH.Shared.ViewModels.Vacancy;
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-4 justify-content-center">
+            <div class="row justify-content-center mb-3">
+                <h2 style="justify-content:center; text-align: center;">
+                    Вхід
+                </h2>
+            </div>
+            <HxTabPanel InitialActiveTabId="Tab1">
+                <HxTab Title="Кандидат" Id="Tab1">
+                    <Content>
+                        <div class="row justify-content-center mb-4 mt-4">
+                            <HxInputText @bind-Value="@Username" Label="Ел. пошта" />
+                        </div>
+@*                         <div class="row justify-content-center mb-4">
+                            <HxInputText @bind-Value="@Password" Label="Пароль" Type="InputType.Password" />
+                        </div> *@
+                        <div class="row justify-content-center mb-2 mx-1">
+                            <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">Увійти</HxButton>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <div class="row justify-content-end pe-1">
+                                    Ще не з нами?
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row justify-content-start">
+                                    <HxNavLink CssClass="text-primary" Href="/registration">Зареєструватися ></HxNavLink>
+                                </div>
+                            </div>
+                        </div>
+                    </Content>
+                </HxTab>
+                <HxTab Title="Роботодавець" Id="Tab2">
+                    <Content>
+                        <div class="row justify-content-center mb-2 mt-4">
+                            <HxInputText @bind-Value="@Username" Label="Ел. пошта" />
+                        </div>
+                        <div class="row justify-content-center mb-4">
+                            <HxInputText @bind-Value="@Password" Label="Пароль" Type="InputType.Password" />
+                        </div>
+                        <div class="row justify-content-center mb-2 mx-1">
+                            <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Увійти</HxButton>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <div class="row justify-content-end pe-1">
+                                    Ще не з нами?
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="row justify-content-start">
+                                    <HxNavLink CssClass="text-primary" Href="/registration">Зареєструватися ></HxNavLink>
+                                </div>
+                            </div>
+                        </div>
+                    </Content>
+                </HxTab>
+            </HxTabPanel>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string Username;
+    private string Password;
+
+    public async Task OnTRPLoginClicked()
+    {
+        NavigationManager.NavigateTo(VacanciesLinks.Vacancies);
+    }
+
+    public async Task OnWorkerLoginClicked()
+    {
+        NavigationManager.NavigateTo(VacanciesLinks.OldVacancies);
+    }
+
+    public async Task OnOrgLoginClicked()
+    {
+        NavigationManager.NavigateTo(CandidateLinks.Candidates);
+    }
+}

@@ -1,4 +1,4 @@
-﻿@page "/"
+﻿@page "/asf"
 
 @using ICH.Client.API;
 @using ICH.Shared.ViewModels.Vacancy;
@@ -16,9 +16,6 @@
             </div>
             <div class="row justify-content-center mb-3">
                 <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">TRP</HxButton>
-            </div>
-            <div class="row justify-content-center mb-3">
-                <HxButton OnClick="OnWorkerLoginClicked" Color="ThemeColor.Primary">Worker</HxButton>
             </div>
             <div class="row justify-content-center mb-3">
                 <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Organization</HxButton>
@@ -40,6 +37,6 @@
 
     public async Task OnOrgLoginClicked()
     {
-        NavigationManager.NavigateTo(TRPsLinks.TRPs);
+        NavigationManager.NavigateTo(CandidateLinks.Candidates);
     }
 }

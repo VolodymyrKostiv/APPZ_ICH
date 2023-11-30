@@ -1,0 +1,33 @@
+﻿@page "/vacancydetails/{VacancyId:int}"
+
+@using ICH.Client.API
+@using ICH.Shared.ViewModels.Vacancy
+@using System.Text.Json
+
+@inject HttpClient Http
+
+<h3>Vacancy Details</h3>
+
+@code 
+{
+    [Parameter]
+    public int VacancyId { get; set; }
+
+    private VacancyViewModel vacancy { get; set; }
+
+    protected override void OnInitialized()
+    {
+        
+    }
+
+    private async Task GetVacancyDetails()
+    {
+        var response = await Http.GetAsync(VacancyGlobals.VacanyById);
+
+        var content = await response.Content.ReadAsStringAsync();
+
+        var vacancies = JsonSerializer.Deserialize<VacancyViewModel>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+        vacancy = vacancies;
+    }
+}

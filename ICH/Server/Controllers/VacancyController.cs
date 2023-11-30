@@ -85,11 +85,11 @@ namespace ICH.Server.Controllers
             return Ok(mappedVacancies);
         }
 
-        ///// <summary>
-        ///// Get filtered vacancies
-        ///// </summary>
-        ///// <returns></returns>
-        ///// <response code="200">Successful operation</response>
+        /// <summary>
+        /// Get filtered vacancies
+        /// </summary>
+        /// <returns></returns>
+        /// <response code="200">Successful operation</response>
         [HttpPost("FilteredVacancies")]
         public async Task<IActionResult> GetFilteredVacancies([FromBody] VacancySearchFiltersViewModel fiters)
         {
@@ -98,6 +98,16 @@ namespace ICH.Server.Controllers
             var vacancies = await _vacancyService.GetFilteredVacanciesAsync(mappedFilters);
 
             var mappedVacancies = _mapper.Map<IEnumerable<VacancyViewModel>>(vacancies);
+
+            return Ok(mappedVacancies);
+        }
+
+        [HttpGet("VacancyById")]
+        public async Task<IActionResult> GetVacancyById(int id)
+        {
+            var vacancies = await _vacancyService.GetVacancyByIdAsync(id);
+
+            var mappedVacancies = _mapper.Map<VacancyViewModel>(vacancies);
 
             return Ok(mappedVacancies);
         }

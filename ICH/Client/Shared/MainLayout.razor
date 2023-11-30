@@ -1,11 +1,24 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager MyNavigationManager
 
 <header>
     <div class="headerBackground">
-        <NavMenu />
+        @if (MyNavigationManager.Uri.Contains("vacancies") ||
+        MyNavigationManager.Uri.Contains("vacancydetails"))
+        {
+            <NavMenuCandidate />
+        }
+        else if (MyNavigationManager.Uri.Contains("candidates") ||
+        MyNavigationManager.Uri.Contains("candidatedetails"))
+        {
+            <NavMenuEmployer />
+        }
+        else
+        {
+            <NavMenu />
+        }
     </div>
 </header>
-
 <div class="page">
     <main>
         <article class="content px-4">

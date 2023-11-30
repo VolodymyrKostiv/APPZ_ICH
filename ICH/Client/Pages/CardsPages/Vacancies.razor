@@ -14,7 +14,7 @@
     }
 
     hr.filters {
-        border-top: 1px solid red;
+        border-top: 2px solid red;
         width: 50%;
     }
 
@@ -28,7 +28,7 @@
     <div class="col">
         <div class="row">
             <div class="col-3 offset-1">
-                <HxInputText InputGroupStartText="Назва посади" @bind-Value="SearchName" />
+                <HxInputText InputGroupStartText="Посада або компанія" @bind-Value="SearchName" />
             </div>
             <div class="col-3">
                 <HxSelect Data="@Locations"
@@ -43,8 +43,8 @@
             </div>
             <div class="col-2">
                 <HxDropdownButtonGroup>
-                    <HxDropdownToggleButton Color="ThemeColor.Primary">
-                        Сортування
+                    <HxDropdownToggleButton Color="ThemeColor.Primary" Icon="BootstrapIcon.SortUp">
+                        Сортувати
                     </HxDropdownToggleButton>
                     <HxDropdownMenu>
                         <HxDropdownItem OnClick="OnUpSortChosen">
@@ -101,7 +101,6 @@
                 </div>
             </div>
         </div>
-
         <div class="row mt-4">
             <div class="col-8 offset-1">
                 @if (!DownloadingVacancies && _vacancies != null && _vacancies.Count != 0)
@@ -109,19 +108,20 @@
                     <h4 style="margin-left: 20px">
                         @_vacancies.Count вакансій
                     </h4>
+                    <div class="row mb-2" />
                     <Virtualize Items="@_vacancies" Context="vacancy">
                         <div class="row mt-2">
                             <div class="col ml-1 me-2">
                                 <HxCard>
                                     <BodyTemplate>
                                         <HxCardTitle>
-                                            <HxNavLink>@vacancy.Title</HxNavLink>
+                                            <HxNavLink CssClass="text-primary" Href="@(string.Concat("vacancydetails/", (vacancy.VacancyId.ToString())))">@vacancy.Title</HxNavLink>
                                             </HxCardTitle>
                                             <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
                                         <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
                                             <HxCardText>@vacancy.Description</HxCardText>
                                             @foreach (var badge in vacancy.SpecialCategories)
-                                        {
+                                            {
                                             @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
                                             {
                                                 <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
@@ -189,57 +189,67 @@
                 }
             </div>
             <div class="col-3">
-                <div class="row mb-1">
-                    <HxCheckboxList TItem="CategoryViewModel"
-                                    TValue="CategoryViewModel"
-                                    Data="Categories"
-                                    ItemValueSelector="@(x => x)"
-                                    ItemTextSelector="@(x => x.Title)"
-                                    @bind-Value=@SelectedCategories
-                                    Label="Категорія"
-                                    LabelCssClass="filterNames" />
-                </div>
-                <hr class="filters" />
-                <div class="row mt-1 mb-1">
-                    <HxCheckboxList TItem="SpecialCategoryViewModel"
-                                    TValue="SpecialCategoryViewModel"
-                                    Data="SpecialCategories"
-                                    ItemValueSelector="@(x => x)"
-                                    ItemTextSelector="@(x => x.Title)"
-                                    @bind-Value=@SelectedSpecialCategories
-                                    Label="Підходить"
-                                    LabelCssClass="filterNames" />
-                </div>
-                <hr class="filters" />
-                <div class="row mt-1 mb-1">
-                    <HxCheckboxList TItem="EmploymentTypeViewModel"
-                                    TValue="EmploymentTypeViewModel"
-                                    Data="EmploymentTypes"
-                                    ItemValueSelector="@(x => x)"
-                                    ItemTextSelector="@(x => x.Title)"
-                                    @bind-Value=@SelectedEmploymentTypes
-                                    Label="Тип зайнятості"
-                                    LabelCssClass="filterNames" />
-                </div>
-                <hr class="filters" />
-                <div class="row mt-1 mb-1">
-                    <HxCheckboxList TItem="WorkTypeViewModel"
-                                    TValue="WorkTypeViewModel"
-                                    Data="WorkTypes"
-                                    ItemValueSelector="@(x => x)"
-                                    ItemTextSelector="@(x => x.Title)"
-                                    @bind-Value=@SelectedWorkTypes
-                                    Label="Характер роботи"
-                                    LabelCssClass="filterNames" />
-                </div>
-                <hr class="filters" />
-                <div class="row mt-4">
+                <div class="row mb-3">
                     <div class="col-6">
                         <div class="row">
-                            <HxButton Outline="true" OnClick="OnResetFiltersClicked" Color="ThemeColor.Danger">Скинути</HxButton>
+                            <HxSwitch Text="Фільтри" @bind-Value="@ShowFilterParameters" />
                         </div>
                     </div>
                 </div>
+                @if (ShowFilterParameters)
+                {
+                    <div class="row mb-1">
+                        <HxCheckboxList TItem="CategoryViewModel"
+                                        TValue="CategoryViewModel"
+                                        Data="Categories"
+                                        ItemValueSelector="@(x => x)"
+                                        ItemTextSelector="@(x => x.Title)"
+                                        @bind-Value=@SelectedCategories
+                                        Label="Категорія"
+                                        LabelCssClass="filterNames" />
+                    </div>
+                    <hr class="filters" />
+                    <div class="row mt-1 mb-1">
+                        <HxCheckboxList TItem="SpecialCategoryViewModel"
+                                        TValue="SpecialCategoryViewModel"
+                                        Data="SpecialCategories"
+                                        ItemValueSelector="@(x => x)"
+                                        ItemTextSelector="@(x => x.Title)"
+                                        @bind-Value=@SelectedSpecialCategories
+                                        Label="Підходить"
+                                        LabelCssClass="filterNames" />
+                    </div>
+                    <hr class="filters" />
+                    <div class="row mt-1 mb-1">
+                        <HxCheckboxList TItem="EmploymentTypeViewModel"
+                                        TValue="EmploymentTypeViewModel"
+                                        Data="EmploymentTypes"
+                                        ItemValueSelector="@(x => x)"
+                                        ItemTextSelector="@(x => x.Title)"
+                                        @bind-Value=@SelectedEmploymentTypes
+                                        Label="Тип зайнятості"
+                                        LabelCssClass="filterNames" />
+                    </div>
+                    <hr class="filters" />
+                    <div class="row mt-1 mb-1">
+                        <HxCheckboxList TItem="WorkTypeViewModel"
+                                        TValue="WorkTypeViewModel"
+                                        Data="WorkTypes"
+                                        ItemValueSelector="@(x => x)"
+                                        ItemTextSelector="@(x => x.Title)"
+                                        @bind-Value=@SelectedWorkTypes
+                                        Label="Характер роботи"
+                                        LabelCssClass="filterNames" />
+                    </div>
+                    <hr class="filters" />
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <div class="row">
+                                <HxButton Outline="true" OnClick="OnResetFiltersClicked" Color="ThemeColor.Danger">Скинути</HxButton>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>
@@ -280,6 +290,17 @@ else
 
     private bool Downloading;
     private bool DownloadingVacancies;
+
+    private bool _showFilterParameters = true;
+    private bool ShowFilterParameters 
+    {
+        get => _showFilterParameters;
+        set
+        {
+            _showFilterParameters = value;
+            Task.Run(OnResetFiltersClicked);
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

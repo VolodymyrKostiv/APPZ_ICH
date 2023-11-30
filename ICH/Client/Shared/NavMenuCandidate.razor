@@ -1,0 +1,29 @@
+﻿@using ICH.Client.Pages
+@inject NavigationManager NavigationManager
+
+<HxNavbar ColorScheme="NavbarColorScheme.Dark" Color="ThemeColor.Primary">
+    <HxNavbarBrand>ICH.UA для Кандидатів</HxNavbarBrand>
+    <HxNavbarToggler />
+    <HxNavbarCollapse>
+        <HxNav CssClass="me-auto mb-2 mb-lg-0">
+            <HxNavLink Href="/vacancies">Знайти Вакансію</HxNavLink>
+            <HxNavLink Href="/createcv">Розмістити Резюме</HxNavLink>
+            <HxNavLink Href="/candidates">Роботодавцю ></HxNavLink>
+        </HxNav>
+        <div class="d-flex">
+            <HxButton CssClass="align-self-end"
+                      Icon="BootstrapIcon.BoxArrowInRight"
+                      Outline="true"
+                      OnClick="OnLogin"
+                      Color="ThemeColor.Light">Увійти</HxButton>
+        </div>
+    </HxNavbarCollapse>
+</HxNavbar>
+
+@code 
+{
+    private void OnLogin()
+    {
+        NavigationManager.NavigateTo(LoginLinks.Login);
+    }
+}

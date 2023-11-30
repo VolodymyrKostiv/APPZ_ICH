@@ -16,6 +16,7 @@
         public static string LocationsUri { get; } = VacanciesUri + "/Locations";
         public static string WorkTypesUri { get; } = VacanciesUri + "/WorkTypes";
         public static string EmploymentTypesUri { get; } = VacanciesUri + "/EmploymentTypes";
+        public static string VacanyById { get; } = VacanciesUri + "/VacancyById";
     }
 
     internal static class TRPGlobals

@@ -6,8 +6,14 @@
         public static string OldVacancies { get; set; } = "/oldvacancies";
     }
 
-    public static class TRPsLinks
+    public static class CandidateLinks
     {
-        public static string TRPs { get; set; } = "/trps";
+        public static string Candidates { get; set; } = "/candidates";
     }
+
+    public static class LoginLinks
+    {
+        public static string Login { get; set; } = "/";
+    }
+
 }
