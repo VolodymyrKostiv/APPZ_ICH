@@ -16,7 +16,7 @@
         public static string LocationsUri { get; } = VacanciesUri + "/Locations";
         public static string WorkTypesUri { get; } = VacanciesUri + "/WorkTypes";
         public static string EmploymentTypesUri { get; } = VacanciesUri + "/EmploymentTypes";
-        public static string VacanyById { get; } = VacanciesUri + "/VacancyById";
+        public static string VacanyByIdUri { get; } = VacanciesUri;
     }
 
     internal static class TRPGlobals
@@ -24,5 +24,6 @@
         private static string TRPsUri { get; } = Globals.ApiUri + "/User";
         public static string AllTRPsUri { get; } = TRPsUri + "/AllTRPs";
         public static string FilteredTRPsUri { get; } = TRPsUri + "/FilteredTRPs";
+        public static string CandidateUri { get; } = TRPsUri;
     }
 }

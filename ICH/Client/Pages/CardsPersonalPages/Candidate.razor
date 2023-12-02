@@ -1,0 +1,75 @@
+﻿@page "/candidatedetails/{UserId:int}"
+
+@using ICH.Client.API
+@using ICH.Shared.ViewModels.User
+@using ICH.Shared.ViewModels.Vacancy
+@using System.Text.Json
+
+@inject HttpClient Http
+
+@if (!Downloading && UserDetails != null)
+{
+    <div class="col-6 offset-3">
+        <div class="row">
+            <HxCard CssClass="p-0">
+                <HeaderTemplate>
+                    <div style="padding: 10px; ">
+                        <h3>@UserDetails.UserInfo.UserName</h3>
+                    </div>
+                </HeaderTemplate>
+                <BodyTemplate>
+                    <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Calendar2DateFill" CssClass="mx-2" />Резюме від @(UserDetails.UserInfo?.CreationTime?.ToString("MM/dd/yyyy"))</HxCardText>
+                    <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Building" CssClass="mx-2" />@UserDetails.UserInfo?.Position</HxCardText>
+                        <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.GeoFill" CssClass="mx-2" />@UserDetails.UserInfo?.Location?.Title</HxCardText>
+                        <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Check2" CssClass="mx-2" />@UserDetails.UserInfo?.EmploymentType?.Title</HxCardText>
+                        <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Eyeglasses" CssClass="mx-2" />@UserDetails.UserInfo?.WorkType?.Title</HxCardText>
+                        <HxCardTitle CssClass="mt-4 mx-2">Інформація</HxCardTitle>
+                        <HxCardText CssClass="mx-2">@UserDetails.UserInfo?.Description</HxCardText>
+                        <div class="flex-row mt-4">
+                            <HxButton CssClass="mx-1"
+                                      Color="ThemeColor.Primary"
+                                      Text="Запропонувати вакансію" />
+                        </div>
+                    </BodyTemplate>
+                </HxCard>
+            </div>
+        </div>
+}
+else
+{
+    <div class="row justify-content-center align-items-center mt-5">
+        <div class="col-4 justify-content-center align-items-center mt-5">
+            <div class="row justify-content-center mt-5">
+                <HxSpinner Color="ThemeColor.Primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public int UserId { get; set; }
+
+    private bool Downloading;
+
+    private UserViewModel UserDetails { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Downloading = true;
+
+        await GetVacancyDetails(UserId);
+
+        Downloading = false;
+    }
+
+    private async Task GetVacancyDetails(int id)
+    {
+        var response = await Http.GetAsync(TRPGlobals.CandidateUri + '/' + id);
+
+        var content = await response.Content.ReadFromJsonAsync<UserViewModel>();
+
+        UserDetails = content;
+    }
+}

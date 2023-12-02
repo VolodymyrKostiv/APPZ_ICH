@@ -102,7 +102,7 @@ namespace ICH.Server.Controllers
             return Ok(mappedVacancies);
         }
 
-        [HttpGet("VacancyById")]
+        [HttpGet("{id}")]
         public async Task<IActionResult> GetVacancyById(int id)
         {
             var vacancies = await _vacancyService.GetVacancyByIdAsync(id);
