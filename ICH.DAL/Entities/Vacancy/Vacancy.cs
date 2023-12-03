@@ -1,4 +1,5 @@
 ﻿using ICH.DAL.Entities.General;
+using ICH.DAL.Entities.User;
 using System.ComponentModel.DataAnnotations;
 
 namespace ICH.DAL.Entities.Vacancy
@@ -17,6 +18,8 @@ namespace ICH.DAL.Entities.Vacancy
         public WorkType? WorkType { get; set; }
         public Category? Category { get; set; }
         public ICH.DAL.Entities.User.User User { get; set; }
+        public VacancyStatus? VacancyStatus { get; set; }
         public ICollection<SpecialCategory>? SpecialCategories { get; set; }
+        public IList<UserVacancies> UserVacancies { get; set; }
     }
 }

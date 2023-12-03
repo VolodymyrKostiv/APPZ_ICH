@@ -15,5 +15,7 @@ namespace ICH.DAL.Entities.User
         public UserType UserType { get; set; }
         public UserInfo? UserInfo { get; set; }
         public ICollection<Vacancy.Vacancy> Vacancies { get; set; }
+
+        public IList<UserVacancies> UserVacancies { get; set; }
     }
 }
