@@ -24,6 +24,7 @@
         private static string TRPsUri { get; } = Globals.ApiUri + "/User";
         public static string AllTRPsUri { get; } = TRPsUri + "/AllTRPs";
         public static string FilteredTRPsUri { get; } = TRPsUri + "/FilteredTRPs";
-        public static string CandidateUri { get; } = TRPsUri;
+        public static string LoginUserUri { get; } = TRPsUri + "/LoginUser";
+        public static string CandidateUri { get; } = TRPsUri; 
     }
 }

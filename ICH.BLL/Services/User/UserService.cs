@@ -191,5 +191,26 @@ namespace ICH.BLL.Services.User
 
             return mappedUsers;
         }
+
+        public async Task<UserDTO> GetUserByCredsAsync(UserLoginCredentialsDTO creds)
+        {
+            var users = await _repoWrapper.UserRepository.GetFirstOrDefaultAsync(
+                include: source => source
+                .Include(x => x.UserInfo)
+                    .ThenInclude(y => y.WorkType)
+                .Include(x => x.UserInfo)
+                    .ThenInclude(y => y.Category)
+                .Include(x => x.UserInfo)
+                    .ThenInclude(y => y.EmploymentType)
+                .Include(x => x.UserInfo)
+                    .ThenInclude(y => y.Location)
+                .Include(x => x.UserInfo)
+                    .ThenInclude(y => y.SpecialCategories),
+                predicate: x => x.Login == creds.UserName && x.Password == creds.Password);
+
+            var map = _mapper.Map<UserDTO>(users);
+
+            return map;
+        }
     }
 }

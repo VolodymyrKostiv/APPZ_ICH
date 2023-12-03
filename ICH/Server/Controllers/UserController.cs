@@ -4,6 +4,7 @@ using ICH.BLL.Interfaces.User;
 using ICH.Shared.ViewModels.User;
 using ICH.Shared.ViewModels.Vacancy;
 using Microsoft.AspNetCore.Mvc;
+using NLog.Filters;
 
 namespace ICH.Server.Controllers
 {
@@ -60,6 +61,23 @@ namespace ICH.Server.Controllers
             var mappedUser = _mapper.Map<UserViewModel>(user);
 
             return Ok(mappedUser);
+        }
+
+        [HttpPost("LoginUser")]
+        public async Task<IActionResult> LoginUser([FromBody] UserLoginCredentialsViewModel creds)
+        {
+            var mappedCreds = _mapper.Map<UserLoginCredentialsDTO>(creds);
+
+            var user = await _userService.GetUserByCredsAsync(mappedCreds);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var mappedUsers = _mapper.Map<UserViewModel>(user);
+
+            return Ok(mappedUsers);
         }
     }
 }

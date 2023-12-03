@@ -1,6 +1,7 @@
 ﻿@page "/"
 
 @using ICH.Client.API;
+@using ICH.Shared.ViewModels.User
 @using ICH.Shared.ViewModels.Vacancy;
 
 @inject HttpClient Http
@@ -15,14 +16,22 @@
                 </h2>
             </div>
             <HxTabPanel InitialActiveTabId="Tab1">
-                <HxTab Title="Кандидат" Id="Tab1">
+                <HxTab Title="Кандидат" Id="Tab1" OnTabDeactivated="() => IsCandidateInvalid = false">
                     <Content>
-                        <div class="row justify-content-center mb-4 mt-4">
+                        <div class="row justify-content-center mb-2 mt-4">
                             <HxInputText @bind-Value="@Username" Label="Ел. пошта" />
                         </div>
-@*                         <div class="row justify-content-center mb-4">
+                        <div class="row justify-content-center mb-3">
                             <HxInputText @bind-Value="@Password" Label="Пароль" Type="InputType.Password" />
-                        </div> *@
+                        </div>
+                        @if (IsCandidateInvalid)
+                        {
+                            <div class="row justify-content-center mb-3">
+                                <HxAlert CssClass="m-0" Color="ThemeColor.Danger">
+                                    Некоректна пошта або пароль
+                                </HxAlert>
+                            </div>
+                        }
                         <div class="row justify-content-center mb-2 mx-1">
                             <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">Увійти</HxButton>
                         </div>
@@ -40,14 +49,22 @@
                         </div>
                     </Content>
                 </HxTab>
-                <HxTab Title="Роботодавець" Id="Tab2">
+                <HxTab Title="Роботодавець" Id="Tab2" OnTabDeactivated="() => IsEmployerInvalid = false">
                     <Content>
                         <div class="row justify-content-center mb-2 mt-4">
                             <HxInputText @bind-Value="@Username" Label="Ел. пошта" />
                         </div>
-                        <div class="row justify-content-center mb-4">
+                        <div class="row justify-content-center mb-3">
                             <HxInputText @bind-Value="@Password" Label="Пароль" Type="InputType.Password" />
                         </div>
+                        @if (IsEmployerInvalid)
+                        {
+                            <div class="row justify-content-center mb-3">
+                                <HxAlert CssClass="m-0" Color="ThemeColor.Danger">
+                                    Некоректна пошта або пароль
+                                </HxAlert>
+                            </div>
+                        }
                         <div class="row justify-content-center mb-2 mx-1">
                             <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Увійти</HxButton>
                         </div>
@@ -74,18 +91,57 @@
     private string Username;
     private string Password;
 
-    public async Task OnTRPLoginClicked()
+    private UserService _userService = new UserService();
+
+    private bool IsCandidateInvalid;
+    private bool IsEmployerInvalid;
+
+    private async Task<UserViewModel> GetUser()
     {
-        NavigationManager.NavigateTo(VacanciesLinks.Vacancies);
+        var user = await _userService.LoginUser(new UserLoginCredentialsViewModel()
+            {
+                UserName = Username,
+                Password = Password
+            });
+
+        return user;
     }
 
-    public async Task OnWorkerLoginClicked()
+    public async Task OnTRPLoginClicked()
     {
-        NavigationManager.NavigateTo(VacanciesLinks.OldVacancies);
+        var user = await GetUser();
+
+        if (user != null)
+        {
+            NavigationManager.NavigateTo(VacanciesLinks.Vacancies);
+        }
+        else
+        {   
+            IsCandidateInvalid = true;
+        }
     }
 
     public async Task OnOrgLoginClicked()
     {
-        NavigationManager.NavigateTo(CandidateLinks.Candidates);
+        var user = GetUser();
+
+        if (user != null)
+        {
+            NavigationManager.NavigateTo(CandidateLinks.Candidates);
+        }
+        else
+        {
+            IsEmployerInvalid = true;
+        }
+    }
+
+    private void CandidateInvalidToFalse()
+    {
+        IsCandidateInvalid = false;   
+    }
+
+    private void EmployerInvalidToFalse()
+    {
+        IsEmployerInvalid = false;
     }
 }

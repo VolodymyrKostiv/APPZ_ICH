@@ -282,6 +282,9 @@ else
     private List<WorkTypeViewModel> WorkTypes { get; set; }
     private List<WorkTypeViewModel> SelectedWorkTypes { get; set; }
 
+    private UserService _userService;
+    private VacancyService _vacancyService;
+
     private bool IsDownSort = true;
     private bool IsDateSort = true;
 
@@ -302,7 +305,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        Downloading = true;
+        StartLoading();
+
+        _userService = new UserService();
+        _vacancyService = new VacancyService();
 
         await GetAllCategories();
         await GetAllSpecialCategories();
@@ -312,12 +318,12 @@ else
         await GetAllTRPs();
         base.OnInitialized();
 
-        Downloading = false;
+        EndLoading();
     }
 
     private async Task OnSearchClicked()
     {
-        DownloadingVacancies = true;
+        StartLoadingUsers();
 
         UserSearchFiltersViewModel filters = new UserSearchFiltersViewModel()
             {
@@ -341,13 +347,14 @@ else
 
         await GetFilteredTRPs(filters);
 
-        DownloadingVacancies = false;
+        EndLoadingUsers();
+
         StateHasChanged();
     }
 
     private async Task OnResetFiltersClicked()
     {
-        DownloadingVacancies = true;
+        StartLoadingUsers();
 
         SelectedCategories = null;
         SelectedEmploymentTypes = null;
@@ -358,43 +365,51 @@ else
 
         await GetAllTRPs();
 
-        DownloadingVacancies = false;
+        EndLoadingUsers();
     }
 
     private async Task OnDownSortChosen()
     {
         IsDownSort = true;
 
-        DownloadingVacancies = true;
+        StartLoadingUsers();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingUsers();
     }
 
     private async Task OnUpSortChosen()
     {
         IsDownSort = false;
 
-        DownloadingVacancies = true;
+        StartLoadingUsers();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingUsers();
     }
 
     private async Task OnDateSortEnabled()
     {
         IsDateSort = true;
 
-        DownloadingVacancies = true;
+        StartLoadingUsers();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingUsers();
     }
 
     private async Task OnSalarySortEnabled()
     {
         IsDateSort = false;
 
-        DownloadingVacancies = true;
+        StartLoadingUsers();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingUsers();
     }
 
     private async Task OnSortTriggerd()
@@ -412,91 +427,74 @@ else
         }
     }
 
+    private void StartLoading()
+    {
+        Downloading = true;   
+    }
+
+    private void EndLoading()
+    {
+        Downloading = false;
+    }
+
+    private void StartLoadingUsers()
+    {
+        DownloadingVacancies = true;
+    }
+
+    private void EndLoadingUsers()
+    {
+        DownloadingVacancies = false;   
+    }
+
     private async Task GetFilteredTRPs(UserSearchFiltersViewModel filters)
     {
-        var jsonRequest = JsonSerializer.Serialize(filters);
+        var users = await _userService.GetFilteredUsers(filters);
 
-        var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri(TRPGlobals.FilteredTRPsUri),
-                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
-            };
-
-        var response = await Http.SendAsync(request).ConfigureAwait(false);
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<UserViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        _users = (ICollection<UserViewModel>)vacancies;
+        _users = users as ICollection<UserViewModel>;
 
         await OnSortTriggerd();
     }
 
     private async Task GetAllCategories()
     {
-        var response = await Http.GetAsync(VacancyGlobals.CategoriesUri);
+        var categories = await _vacancyService.GetAllCategories();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<CategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        Categories = vacancies.ToList();
+        Categories = categories.ToList();
     }
 
     private async Task GetAllSpecialCategories()
     {
-        var response = await Http.GetAsync(VacancyGlobals.SpecialCategoriesUri);
+        var specialCategories = await _vacancyService.GetAllSpecialCategories();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<SpecialCategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        SpecialCategories = vacancies.ToList();
+        SpecialCategories = specialCategories.ToList();
     }
 
     private async Task GetAllLocations()
     {
-        var response = await Http.GetAsync(VacancyGlobals.LocationsUri);
+        var locations = await _vacancyService.GetAllLocations();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<LocationViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        Locations = vacancies.ToList();
+        Locations = locations.ToList();
     }
 
     private async Task GetAllEmploymentTypes()
     {
-        var response = await Http.GetAsync(VacancyGlobals.EmploymentTypesUri);
+        var employmentTypes = await _vacancyService.GetAllEmploymentTypes();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<EmploymentTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        EmploymentTypes = vacancies.ToList();
+        EmploymentTypes = employmentTypes.ToList();
     }
 
     private async Task GetAllWorkTypes()
     {
-        var response = await Http.GetAsync(VacancyGlobals.WorkTypesUri);
+        var workTypes = await _vacancyService.GetAllWorkTypes();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<WorkTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        WorkTypes = vacancies.ToList();
+        WorkTypes = workTypes.ToList();
     }
 
     private async Task GetAllTRPs()
     {
-        var response = await Http.GetAsync(TRPGlobals.AllTRPsUri);
+        var users = await _userService.GetAllUsers();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var trps = JsonSerializer.Deserialize<IEnumerable<UserViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        _users = trps.ToList();
+        _users = users as ICollection<UserViewModel>;
     }
 }

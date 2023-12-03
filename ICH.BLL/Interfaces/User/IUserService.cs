@@ -9,5 +9,6 @@ namespace ICH.BLL.Interfaces.User
         Task<UserDTO> GetUserByIdAsync(int id);
         Task<IEnumerable<UserDTO>> GetFilteredTRPs(UserSearchFiltersDTO filters);
         Task<IEnumerable<UserDTO>> GetAllTRPs();
+        Task<UserDTO> GetUserByCredsAsync(UserLoginCredentialsDTO creds);
     }
 }

@@ -121,7 +121,7 @@
                                         <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
                                             <HxCardText>@vacancy.Description</HxCardText>
                                             @foreach (var badge in vacancy.SpecialCategories)
-                                            {
+                                        {
                                             @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
                                             {
                                                 <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
@@ -292,7 +292,7 @@ else
     private bool DownloadingVacancies;
 
     private bool _showFilterParameters = true;
-    private bool ShowFilterParameters 
+    private bool ShowFilterParameters
     {
         get => _showFilterParameters;
         set
@@ -302,9 +302,13 @@ else
         }
     }
 
+    private VacancyService _vacancyService;
+
     protected override async Task OnInitializedAsync()
     {
-        Downloading = true;
+        StartLoading();
+
+        _vacancyService = new VacancyService();
 
         await GetAllCategories();
         await GetAllSpecialCategories();
@@ -312,14 +316,15 @@ else
         await GetAllLocations();
         await GetAllEmploymentTypes();
         await GetAllVacancies();
+
         base.OnInitialized();
 
-        Downloading = false;
+        EndLoading();
     }
 
     private async Task OnSearchClicked()
     {
-        DownloadingVacancies = true;
+        StartLoadingVacancies();
 
         VacancySearchFiltersViewModel filters = new VacancySearchFiltersViewModel()
             {
@@ -340,16 +345,19 @@ else
         {
             await GetAllVacancies();
         }
+        else
+        {
+            await GetFilteredVacancies(filters);
+        }
 
-        await GetFilteredVacancies(filters);
+        EndLoadingVacancies();
 
-        DownloadingVacancies = false;
         StateHasChanged();
     }
 
     private async Task OnResetFiltersClicked()
     {
-        DownloadingVacancies = true;
+        StartLoadingVacancies();
 
         SelectedCategories = null;
         SelectedEmploymentTypes = null;
@@ -360,42 +368,70 @@ else
 
         await GetAllVacancies();
 
-        DownloadingVacancies = false;
+        EndLoadingVacancies();
     }
 
     private async Task OnDownSortChosen()
     {
         IsDownSort = true;
 
-        DownloadingVacancies = true;
+        StartLoadingVacancies();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingVacancies();
     }
 
     private async Task OnUpSortChosen()
     {
         IsDownSort = false;
 
-        DownloadingVacancies = true;
+        StartLoadingVacancies();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingVacancies();
     }
 
     private async Task OnDateSortEnabled()
     {
         IsDateSort = true;
 
-        DownloadingVacancies = true;
+        StartLoadingVacancies();
+
         await OnSortTriggerd();
-        DownloadingVacancies = false;
+
+        EndLoadingVacancies();
     }
 
     private async Task OnSalarySortEnabled()
     {
         IsDateSort = false;
 
-        DownloadingVacancies = true;
+        StartLoadingVacancies();
+
         await OnSortTriggerd();
+
+        EndLoadingVacancies();
+    }
+
+    private void StartLoading()
+    {
+        Downloading = true;
+    }
+
+    private void EndLoading()
+    {
+        Downloading = false;
+    }
+
+    private void StartLoadingVacancies()
+    {
+        DownloadingVacancies = true;
+    }
+
+    private void EndLoadingVacancies()
+    {
         DownloadingVacancies = false;
     }
 
@@ -427,89 +463,52 @@ else
 
     private async Task GetFilteredVacancies(VacancySearchFiltersViewModel filters)
     {
-        var jsonRequest = JsonSerializer.Serialize(filters);
+        var vacancies = await _vacancyService.GetFilteredVacancies(filters);
 
-        var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                RequestUri = new Uri(VacancyGlobals.FilteredVacanciesUri),
-                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
-            };
-
-        var response = await Http.SendAsync(request).ConfigureAwait(false);
-
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        _vacancies = (ICollection<VacancyViewModel>)vacancies;
+        _vacancies = vacancies as ICollection<VacancyViewModel>;
 
         await OnSortTriggerd();
     }
 
     private async Task GetAllCategories()
     {
-        var response = await Http.GetAsync(VacancyGlobals.CategoriesUri);
+        var categories = await _vacancyService.GetAllCategories();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<CategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        Categories = vacancies.ToList();
+        Categories = categories.ToList();
     }
 
     private async Task GetAllSpecialCategories()
     {
-        var response = await Http.GetAsync(VacancyGlobals.SpecialCategoriesUri);
+        var specialCategories = await _vacancyService.GetAllSpecialCategories();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<SpecialCategoryViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        SpecialCategories = vacancies.ToList();
+        SpecialCategories = specialCategories.ToList();
     }
 
     private async Task GetAllLocations()
     {
-        var response = await Http.GetAsync(VacancyGlobals.LocationsUri);
+        var locations = await _vacancyService.GetAllLocations();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<LocationViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        Locations = vacancies.ToList();
+        Locations = locations.ToList();
     }
 
     private async Task GetAllEmploymentTypes()
     {
-        var response = await Http.GetAsync(VacancyGlobals.EmploymentTypesUri);
+        var employmentTypes = await _vacancyService.GetAllEmploymentTypes();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<EmploymentTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        EmploymentTypes = vacancies.ToList();
+        EmploymentTypes = employmentTypes.ToList();
     }
 
     private async Task GetAllWorkTypes()
     {
-        var response = await Http.GetAsync(VacancyGlobals.WorkTypesUri);
+        var workTypes = await _vacancyService.GetAllWorkTypes();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<WorkTypeViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        WorkTypes = vacancies.ToList();
+        WorkTypes = workTypes.ToList();
     }
 
     private async Task GetAllVacancies()
     {
-        var response = await Http.GetAsync(VacancyGlobals.AllVacanciesUri);
+        var vacancies = await _vacancyService.GetAllVacancies();
 
-        var content = await response.Content.ReadAsStringAsync();
-
-        var vacancies = JsonSerializer.Deserialize<IEnumerable<VacancyViewModel>>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-        _vacancies = vacancies.ToList();
+        _vacancies = vacancies as ICollection<VacancyViewModel>;
     }
 }

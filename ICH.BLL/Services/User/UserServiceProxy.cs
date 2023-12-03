@@ -38,6 +38,11 @@ namespace ICH.BLL.Services.User
             throw new NotImplementedException();
         }
 
+        public Task<UserDTO> GetUserByCredsAsync(UserLoginCredentialsDTO creds)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<UserDTO> GetUserByIdAsync(int id)
         {
             _logger.LogInfo($"{System.Reflection.MethodBase.GetCurrentMethod().Name}");

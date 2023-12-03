@@ -22,8 +22,14 @@
             <HxTabPanel InitialActiveTabId="Tab1">
                 <HxTab Title="Шукач" Id="Tab1">
                     <Content>
-                        <div class="row justify-content-center mb-4 mt-4">
+                        <div class="row justify-content-center mb-2 mt-4">
                             <HxInputText @bind-Value="@Username" Label="Ел. пошта" />
+                        </div>
+                        <div class="row justify-content-center mb-2">
+                            <HxInputText @bind-Value="@Password" Label="Пароль" Type="InputType.Password" />
+                        </div>
+                        <div class="row justify-content-center mb-4">
+                            <HxInputText @bind-Value="@PasswordAgain" Label="Повторіть пароль" Type="InputType.Password" />
                         </div>
                         <div class="row justify-content-center mb-2 mx-1">
                             <HxButton OnClick="OnTRPLoginClicked" Color="ThemeColor.Primary">Зареєструватися</HxButton>
@@ -51,7 +57,7 @@
                             <HxInputText @bind-Value="@Password" Label="Пароль" Type="InputType.Password" />
                         </div>
                         <div class="row justify-content-center mb-4">
-                            <HxInputText @bind-Value="@Password" Label="Повторіть пароль" Type="InputType.Password" />
+                            <HxInputText @bind-Value="@PasswordAgain" Label="Повторіть пароль" Type="InputType.Password" />
                         </div>
                         <div class="row justify-content-center mb-2 mx-1">
                             <HxButton OnClick="OnOrgLoginClicked" Color="ThemeColor.Primary">Зареєструватися</HxButton>
@@ -79,15 +85,11 @@
 {
     private string Username;
     private string Password;
+    private string PasswordAgain;
 
     public async Task OnTRPLoginClicked()
     {
         NavigationManager.NavigateTo(VacanciesLinks.Vacancies);
-    }
-
-    public async Task OnWorkerLoginClicked()
-    {
-        NavigationManager.NavigateTo(VacanciesLinks.OldVacancies);
     }
 
     public async Task OnOrgLoginClicked()
