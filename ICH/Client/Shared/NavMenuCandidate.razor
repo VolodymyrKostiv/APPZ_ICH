@@ -1,5 +1,8 @@
-﻿@using ICH.Client.Pages
+﻿@using ICH.Client.API
+@using ICH.Client.Pages
+
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService Storage
 
 <HxNavbar ColorScheme="NavbarColorScheme.Dark" Color="ThemeColor.Primary">
     <HxNavbarBrand>ICH.UA для Кандидатів</HxNavbarBrand>
@@ -11,19 +14,51 @@
             <HxNavLink Href="/candidates">Роботодавцю ></HxNavLink>
         </HxNav>
         <div class="d-flex">
-            <HxButton CssClass="align-self-end"
-                      Icon="BootstrapIcon.BoxArrowInRight"
-                      Outline="true"
-                      OnClick="OnLogin"
-                      Color="ThemeColor.Light">Увійти</HxButton>
+            @if (!IsUserLoggined)
+            {
+                <HxButton CssClass="align-self-end"
+                          Icon="BootstrapIcon.BoxArrowInRight"
+                          Outline="true"
+                          OnClick="OnLogin"
+                          Color="ThemeColor.Light">Увійти</HxButton>
+            }
+            else
+            {
+                <HxDropdown>
+                    <HxDropdownToggleElement ElementName="div" CssClass="bg-primary p-3 text-white" role="button">
+                        <HxIcon Icon="BootstrapIcon.PersonFill" />
+                    </HxDropdownToggleElement>
+                    <HxDropdownMenu Alignment="DropdownMenuAlignment.End">
+                        <HxDropdownItemNavLink Href="/components/HxDropdown">Link with Href</HxDropdownItemNavLink>
+                        <HxDropdownDivider />
+                        <HxDropdownItem OnClick="OnLogin">
+                            <div class="flex">
+                                <HxIcon Icon="BootstrapIcon.BoxArrowLeft" CssClass="me-2" />Вийти
+                            </div>
+                        </HxDropdownItem>
+                    </HxDropdownMenu>
+                </HxDropdown>
+            }
         </div>
     </HxNavbarCollapse>
 </HxNavbar>
 
-@code 
+@code
 {
-    private void OnLogin()
+    private UserStorageService _userStorageService;
+    private bool IsUserLoggined;
+
+    protected override async Task OnInitializedAsync()
     {
+        _userStorageService = new UserStorageService(Storage);
+
+        var loginned = await _userStorageService.IsUserLoginned();
+        IsUserLoggined = loginned;
+    }
+
+    private async Task OnLogin()
+    {
+        await _userStorageService.ExitUser();
         NavigationManager.NavigateTo(LoginLinks.Login);
     }
 }

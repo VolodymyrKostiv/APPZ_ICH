@@ -6,6 +6,7 @@
 
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService Storage
 
 <div class="container">
     <div class="row justify-content-center mt-5">
@@ -92,9 +93,15 @@
     private string Password;
 
     private UserService _userService = new UserService();
+    private UserStorageService _userStorageService;
 
     private bool IsCandidateInvalid;
     private bool IsEmployerInvalid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userStorageService = new UserStorageService(Storage);
+    }
 
     private async Task<UserViewModel> GetUser()
     {
@@ -107,26 +114,33 @@
         return user;
     }
 
+    private async Task LoginUser(UserViewModel user)
+    {
+        await _userStorageService.LoginUser(user);
+    }
+
     public async Task OnTRPLoginClicked()
     {
         var user = await GetUser();
 
         if (user != null)
         {
+            await LoginUser(user);
             NavigationManager.NavigateTo(VacanciesLinks.Vacancies);
         }
         else
-        {   
+        {
             IsCandidateInvalid = true;
         }
     }
 
     public async Task OnOrgLoginClicked()
     {
-        var user = GetUser();
+        var user = await GetUser();
 
         if (user != null)
         {
+            await LoginUser(user);
             NavigationManager.NavigateTo(CandidateLinks.Candidates);
         }
         else
@@ -137,7 +151,7 @@
 
     private void CandidateInvalidToFalse()
     {
-        IsCandidateInvalid = false;   
+        IsCandidateInvalid = false;
     }
 
     private void EmployerInvalidToFalse()
