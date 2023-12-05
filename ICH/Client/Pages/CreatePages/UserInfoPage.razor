@@ -1,0 +1,378 @@
+﻿@page "/userinfo"
+
+@using ICH.Client.API
+@using ICH.Shared.ViewModels.User
+@using ICH.Shared.ViewModels.Vacancy
+@using System.Text.Json
+
+@inject HttpClient Http
+@inject ILocalStorageService Storage
+
+<style>
+    .divBadge {
+        font-size: 14px;
+    }
+</style>
+
+@if (!Downloading)
+{
+    if (IsUserLoggined)
+    {
+        <div class="col-6 offset-3">
+            <div class="row">
+                @if (!IsEditForm)
+                {
+                    <HxCard CssClass="p-0">
+                        <HeaderTemplate>
+                            <div style="padding: 10px; ">
+                                <h3>@Username</h3>
+                            </div>
+                        </HeaderTemplate>
+                        <BodyTemplate>
+                            <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Calendar2DateFill" CssClass="mx-2" />Резюме від @(UserCreationTime?.ToString("MM/dd/yyyy"))</HxCardText>
+                            <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Building" CssClass="mx-2" />@UserPosition</HxCardText>
+                                <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.GeoFill" CssClass="mx-2" />@(UserLocation?.Title)</HxCardText>
+                                <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Check2" CssClass="mx-2" />@(UserEmploymentType?.Title)</HxCardText>
+                                <HxCardText CssClass="m-1"><HxIcon Icon="BootstrapIcon.Eyeglasses" CssClass="mx-2" />@(UserWorkType?.Title)</HxCardText>
+                                <div class="flex-row mt-2">
+
+                                    @foreach (var badge in UserSpecialCategories)
+                                {
+                                    @if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(0)?.SpecialCategoryId)
+                                    {
+                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Success">
+                                            <div class="divBadge">
+                                                @SpecialCategories?.ElementAtOrDefault(0)?.Title
+                                            </div>
+                                        </HxBadge>
+                                    }
+                                    else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(1)?.SpecialCategoryId)
+                                    {
+                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Danger">
+                                            <div class="divBadge">
+                                                @SpecialCategories?.ElementAtOrDefault(1)?.Title
+                                            </div>
+                                        </HxBadge>
+                                    }
+                                    else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(2)?.SpecialCategoryId)
+                                    {
+                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Warning">
+                                            <div class="divBadge">
+                                                @SpecialCategories?.ElementAtOrDefault(2)?.Title
+                                            </div>
+                                        </HxBadge>
+                                    }
+                                    else if (badge.SpecialCategoryId == SpecialCategories?.ElementAtOrDefault(3)?.SpecialCategoryId)
+                                    {
+                                        <HxBadge Type="BadgeType.RoundedPill" Color="ThemeColor.Info">
+                                            <div class="divBadge">
+                                                @SpecialCategories?.ElementAtOrDefault(3)?.Title
+                                            </div>
+                                        </HxBadge>
+                                    }
+                                }
+                            </div>
+                            @if (UserDescription != null && UserDescription != "")
+                            {
+                                <HxCardTitle CssClass="mt-4 mx-2">Опис</HxCardTitle>
+                                <HxCardText CssClass="mx-2">@UserDescription</HxCardText>
+                            }
+                            <div class="flex-row mt-4">
+                                <HxButton CssClass="mx-1"
+                                          Icon="BootstrapIcon.PencilFill"
+                                          Color="ThemeColor.Primary"
+                                          Text="Редагувати"
+                                          OnClick="() => IsEditForm = true" />
+                            </div>
+                        </BodyTemplate>
+                    </HxCard>
+                }
+                else
+                {
+                    <h2 class="mt-2">Редагування Профілю</h2>
+                    <HxCard CssClass="p-0 mt-2">
+                        <HeaderTemplate>
+                            <div style="padding: 10px;">
+                                <HxInputText InputGroupStartText="Ім'я/Прізвище" @bind-Value="Username"></HxInputText>
+                            </div>
+                        </HeaderTemplate>
+                        <BodyTemplate>
+                            <HxCardText CssClass="m-2">Останні зміни від @(UserCreationTime?.ToString("MM/dd/yyyy"))</HxCardText>
+
+                            <HxInputText InputGroupStartText="Жадана Позиція"
+                                         CssClass="m-1" @bind-Value="UserPosition" />
+
+                            <HxSelect Data="@Locations"
+                                      CssClass="m-1"
+                                      Nullable="true"
+                                      NullText="Вся Україна"
+                                      @bind-Value="@UserLocation"
+                                      InputGroupStartText="Місто"
+                                      TItem="LocationViewModel"
+                                      TValue="LocationViewModel"
+                                      TextSelector="@(p => p.Title)"
+                                      ValueSelector="@(p => p)" />
+
+                            <HxSelect Data="@EmploymentTypes"
+                                      CssClass="m-1"
+                                      Nullable="true"
+                                      NullText="Будь-яка зайнятість"
+                                      @bind-Value="UserEmploymentType"
+                                      InputGroupStartText="Тип Зайнятості"
+                                      TItem="EmploymentTypeViewModel"
+                                      TValue="EmploymentTypeViewModel"
+                                      TextSelector="@(p => p.Title)"
+                                      ValueSelector="@(p => p)" />
+
+                            <HxSelect Data="@WorkTypes"
+                                      CssClass="m-1"
+                                      Nullable="true"
+                                      NullText="Будь-який Тип Роботи"
+                                      @bind-Value="UserWorkType"
+                                      InputGroupStartText="Тип Роботи"
+                                      TItem="WorkTypeViewModel"
+                                      TValue="WorkTypeViewModel"
+                                      TextSelector="@(p => p.Title)"
+                                      ValueSelector="@(p => p)" />
+
+                            <HxSelect Data="@Categories"
+                                      CssClass="m-1"
+                                      Nullable="true"
+                                      NullText="Будь-яка Категорія"
+                                      @bind-Value="UserCategory"
+                                      InputGroupStartText="Категорія роботи"
+                                      TItem="CategoryViewModel"
+                                      TValue="CategoryViewModel"
+                                      TextSelector="@(p => p.Title)"
+                                      ValueSelector="@(p => p)" />
+
+                            <HxMultiSelect Data="@SpecialCategories"
+                                           CssClass="m-1"
+                                           @bind-Value="UserSpecialCategories"
+                                           InputGroupStartText="Особливі Категорії"
+                                           TItem="SpecialCategoryViewModel"
+                                           TValue="SpecialCategoryViewModel"
+                                           TextSelector="@(p => p.Title)"
+                                           ValueSelector="@(p => p)" />
+
+                            <HxCardTitle CssClass="mt-3 mx-2">Опис</HxCardTitle>
+
+                            <HxInputTextArea @bind-Value="UserDescription" CssClass="mx-2" />
+                            <div class="flex-row mt-4">
+                                <HxButton CssClass="mx-1"
+                                          Icon="BootstrapIcon.Save"
+                                          Color="ThemeColor.Success"
+                                          Text="Зберегти"
+                                          OnClick="UpdateUserInfo" />
+                                <HxButton CssClass="mx-1"
+                                          Icon="BootstrapIcon.XCircle"
+                                          Color="ThemeColor.Danger"
+                                          Text="Скасувати"
+                                          OnClick="CancelEditing" />
+                            </div>
+                        </BodyTemplate>
+                    </HxCard>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <HxAlert Color="ThemeColor.Warning" CssClass="m-3">
+            <h5>
+                Сторінка не доступна
+            </h5>
+            <h6>
+                Спробуйте увійти в профіль
+            </h6>
+        </HxAlert>
+    }
+}
+else
+{
+    <div class="row justify-content-center align-items-center mt-5">
+        <div class="col-4 justify-content-center align-items-center mt-5">
+            <div class="row justify-content-center mt-5">
+                <HxSpinner Color="ThemeColor.Primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    private bool Downloading;
+    private bool IsUserLoggined;
+    private bool IsEditForm;
+
+    private UserService _userService;
+    private VacancyService _vacancyService;
+    private UserStorageService _userStorageService;
+
+    private UserViewModel User { get; set; }
+
+    [Inject] protected IHxMessengerService Messenger { get; set; }
+
+    private string Username;
+    private DateTime? UserCreationTime;
+    private string UserPosition;
+    private LocationViewModel UserLocation;
+    private CategoryViewModel UserCategory;
+    private List<SpecialCategoryViewModel> UserSpecialCategories;
+    private EmploymentTypeViewModel UserEmploymentType;
+    private WorkTypeViewModel UserWorkType;
+    private string UserDescription;
+
+    private List<LocationViewModel> Locations { get; set; }
+    private List<CategoryViewModel> Categories { get; set; }
+    private List<SpecialCategoryViewModel> SpecialCategories { get; set; }
+    private List<EmploymentTypeViewModel> EmploymentTypes { get; set; }
+    private List<WorkTypeViewModel> WorkTypes { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        StartLoading();
+
+        _userStorageService = new UserStorageService(Storage);
+        _userService = new UserService();
+
+        var loginned = await _userStorageService.IsUserLoginned();
+
+        IsUserLoggined = loginned;
+
+        if (IsUserLoggined)
+        {
+            var user = await GetCandidateDetails();
+
+            User = user;
+
+            _vacancyService = new VacancyService();
+
+            await GetAllCategories();
+            await GetAllSpecialCategories();
+            await GetAllWorkTypes();
+            await GetAllLocations();
+            await GetAllEmploymentTypes();
+
+            ResetFields();
+        }
+
+        EndLoading();
+    }
+
+    private async Task UpdateUserInfo()
+    {
+        StartLoading();
+
+        UserViewModel updatedUser = User.Clone() as UserViewModel;
+        updatedUser.UserInfo = new UserInfoViewModel()
+            {
+                UserName = Username,
+                Position = UserPosition,
+                Category = UserCategory,
+                SpecialCategories = UserSpecialCategories,
+                EmploymentType = UserEmploymentType,
+                Location = UserLocation,
+                WorkType = UserWorkType,
+                CreationTime = DateTime.UtcNow,
+            };
+
+        try
+        {
+            var result = await _userService.UpdateUserData(updatedUser);
+            if (result)
+            {
+                IsEditForm = false;
+                await _userStorageService.UpdateCurrentUserInfo(updatedUser);
+                Messenger.AddInformation("Оновлення Профілю", "Зміни успішно збережено!");
+            }
+            else
+            {
+                Messenger.AddError("Оновлення Профілю", "Щось пішло не так!");
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+
+        EndLoading();
+    }
+
+    private async Task CancelEditing()
+    {
+        StartLoading();
+
+        IsEditForm = false;
+        ResetFields();
+
+        EndLoading();
+    }
+
+    private void ResetFields()
+    {
+        if (User != null && User.UserInfo != null)
+        {
+            Username = User.UserInfo.UserName;
+            UserCreationTime = User.UserInfo.CreationTime;
+            UserPosition = User.UserInfo.Position;
+            UserLocation = User.UserInfo.Location;
+            UserEmploymentType = User.UserInfo.EmploymentType;
+            UserWorkType = User.UserInfo.WorkType;
+            UserCategory = User.UserInfo.Category;
+            UserSpecialCategories = User.UserInfo.SpecialCategories.ToList();
+        }
+    }
+
+    private async Task<UserViewModel> GetCandidateDetails()
+    {
+        var user = await _userStorageService.GetLoginnedUser();
+
+        return user;
+    }
+
+    private async Task GetAllCategories()
+    {
+        var categories = await _vacancyService.GetAllCategories();
+
+        Categories = categories.ToList();
+    }
+
+    private async Task GetAllSpecialCategories()
+    {
+        var specialCategories = await _vacancyService.GetAllSpecialCategories();
+
+        SpecialCategories = specialCategories.ToList();
+    }
+
+    private async Task GetAllLocations()
+    {
+        var locations = await _vacancyService.GetAllLocations();
+
+        Locations = locations.ToList();
+    }
+
+    private async Task GetAllEmploymentTypes()
+    {
+        var employmentTypes = await _vacancyService.GetAllEmploymentTypes();
+
+        EmploymentTypes = employmentTypes.ToList();
+    }
+
+    private async Task GetAllWorkTypes()
+    {
+        var workTypes = await _vacancyService.GetAllWorkTypes();
+
+        WorkTypes = workTypes.ToList();
+    }
+
+    private void StartLoading()
+    {
+        Downloading = true;
+    }
+
+    private void EndLoading()
+    {
+        Downloading = false;
+    }
+}

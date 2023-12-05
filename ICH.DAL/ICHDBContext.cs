@@ -21,11 +21,14 @@ namespace ICH.DAL
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UserVacancies> UserVacancies { get; set; }
+        public DbSet<UserVacancyStatus> UserVacancyStatuses { get; set; }
         public DbSet<Vacancy> Vacancies { get; set; }
         public DbSet<Location> Locations { get; set; }  
         public DbSet<Category> Categories { get; set; }
         public DbSet<SpecialCategory> SpecialCategories { get; set; }
         public DbSet<EmploymentType> EmploymentTypes { get; set; }
         public DbSet<WorkType> WorkTypes { get; set; }
+        public DbSet<VacancyStatus> VacancyStatuses { get; set; }
     }
 }

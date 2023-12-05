@@ -4,12 +4,16 @@
 <header>
     <div class="headerBackground">
         @if (MyNavigationManager.Uri.Contains("vacancies") ||
-        MyNavigationManager.Uri.Contains("vacancydetails"))
+        MyNavigationManager.Uri.Contains("vacancydetails") ||
+        MyNavigationManager.Uri.Contains("userinfo") ||
+        MyNavigationManager.Uri.Contains("createcv"))
         {
             <NavMenuCandidate />
         }
-        else if (MyNavigationManager.Uri.Contains("candidates") ||
-        MyNavigationManager.Uri.Contains("candidatedetails"))
+        else if (MyNavigationManager.Uri.Contains("employervacs") ||
+        MyNavigationManager.Uri.Contains("candidates") ||
+        MyNavigationManager.Uri.Contains("candidatedetails") ||
+        MyNavigationManager.Uri.Contains("createvacancy"))
         {
             <NavMenuEmployer />
         }
@@ -22,6 +26,7 @@
 <div class="page">
     <main>
         <article class="content px-4">
+            <HxMessenger Position="ToastContainerPosition.BottomEnd" />
             @Body
         </article>
     </main>

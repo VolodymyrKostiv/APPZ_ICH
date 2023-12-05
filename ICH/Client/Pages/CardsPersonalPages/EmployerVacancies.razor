@@ -1,0 +1,138 @@
+﻿@page "/employervacs"
+
+@using ICH.Client.API
+@using ICH.Shared.ViewModels.User
+@using ICH.Shared.ViewModels.Vacancy
+@inject HttpClient Http
+@inject ILocalStorageService Storage
+
+<style>
+    .divBadge {
+        font-size: 14px;
+    }
+
+    hr.filters {
+        border-top: 2px solid red;
+        width: 50%;
+    }
+
+    .filterNames {
+        font-weight: bold;
+    }
+</style>
+
+@if (!Downloading)
+{
+    <div class="col">
+        <div class="row mt-2">
+            <div class="col-8 offset-1">
+                @if (!DownloadingVacancies && _vacancies != null && _vacancies.Count != 0)
+                {
+                    <h4 style="margin-left: 20px">
+                        @_vacancies.Count вакансій
+                    </h4>
+                    <div class="row mb-2" />
+                    <Virtualize Items="@_vacancies" Context="vacancy">
+                        <div class="row mt-2">
+                            <div class="col ml-1 me-2">
+                                <HxCard>
+                                    <BodyTemplate>
+                                        <HxCardTitle>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <HxNavLink CssClass="text-primary" Href="@(string.Concat("vacancydetails/", (vacancy.VacancyId.ToString())))">@vacancy.Title</HxNavLink>
+                                                    </div>
+                                                    <div></div>
+                                                    <div>
+                                                     <HxButton Icon="BootstrapIcon.Trash3" OnClick="() => DeleteItem(vacancy)" />
+                                                </div>
+                                            </div>
+                                        </HxCardTitle>
+                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                        <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
+                                            <HxCardText>@vacancy.Description</HxCardText>
+                                        <div class="flex-row align-content-end " style="text-align: right;">
+                                            <HxCardText>
+                                                <small class="text-muted">@((DateTime.Now.Subtract(@vacancy.CreationTime).Days / 7).ToString() + " тиж. тому")</small>
+                                            </HxCardText>
+                                        </div>
+                                    </BodyTemplate>
+                                </HxCard>
+                            </div>
+                        </div>
+                    </Virtualize>
+                }
+                else if (DownloadingVacancies)
+                {
+                    <div class="row justify-content-center align-items-center mt-5">
+                        <div class="col-4 justify-content-center align-items-center mt-5">
+                            <div class="row justify-content-center mt-5">
+                                <HxSpinner Color="ThemeColor.Primary" />
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center align-items-center mt-5">
+        <div class="col-4 justify-content-center align-items-center mt-5">
+            <div class="row justify-content-center mt-5">
+                <HxSpinner Color="ThemeColor.Primary" />
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private bool Downloading;
+    private bool DownloadingVacancies;
+    private ICollection<VacancyViewModel> _vacancies { get; set; }
+
+    [Inject] protected IHxMessengerService Messenger { get; set; }
+    private VacancyViewModel Vacancy { get; set; }
+    private VacancyService _vacancyService;
+    private UserStorageService _userStorageService;
+    private UserViewModel _user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        StartLoading();
+
+        _userStorageService = new UserStorageService(Storage);
+
+        var user = await _userStorageService.GetLoginnedUser();
+        _user = user;
+
+        _vacancyService = new VacancyService();
+        var vacs = await _vacancyService.GetAllVacancies();
+        vacs = vacs.Where(x => x.User?.UserId == _user.UserId).ToList();
+        var newVac = await _userStorageService.GetAddedVacancy();
+
+        vacs.ToList().Add(newVac);
+
+        _vacancies = vacs.AsEnumerable() as ICollection<VacancyViewModel>;
+
+        EndLoading();
+    }
+
+    private void DeleteItem(VacancyViewModel vacancy)
+    {
+        _vacancies = _vacancies.Where(x => x.Title != vacancy.Title).ToList();
+        Messenger.AddInformation("Видалення вакансії", "Вакансію було успішно видалено");
+    }
+
+    private void StartLoading()
+    {
+        Downloading = true;
+    }
+
+    private void EndLoading()
+    {
+        Downloading = false;
+    }
+}

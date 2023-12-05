@@ -1,10 +1,13 @@
 ﻿@page "/vacancydetails/{VacancyId:int}"
 
 @using ICH.Client.API
+@using ICH.Client.Enums
+@using ICH.Shared.ViewModels.User
 @using ICH.Shared.ViewModels.Vacancy
 @using System.Text.Json
 
 @inject HttpClient Http
+@inject ILocalStorageService Storage
 
 @if (!Downloading && VacancyDetails != null)
 {
@@ -25,18 +28,27 @@
                         <HxCardTitle CssClass="mt-4 mx-2">Опис вакансії</HxCardTitle>
                         <HxCardText CssClass="mx-2">@VacancyDetails.Description</HxCardText>
                         <div class="flex-row mt-4">
-                            <HxButton CssClass="mx-1" Color="ThemeColor.Primary">Відгукнутися</HxButton>
-                            <HxButton CssClass="mx-1"
-                                      Color="ThemeColor.Primary"
-                                      Outline=true
-                                      Icon="BootstrapIcon.Heart">
-                                Зберегти
-                            </HxButton>
-                        </div>
-                    </BodyTemplate>
-                </HxCard>
-            </div>
+                            @if ((CurrentUserVacancyStatus != UserVacancyStatus.Applied &&
+                       CurrentUserVacancyStatus != UserVacancyStatus.Recruited) || CurrentUserVacancyStatus == UserVacancyStatus.None)
+                            {
+                            <HxButton CssClass="mx-1" Color="ThemeColor.Primary" Icon="BootstrapIcon.PersonCheck" OnClick="ApplyVacancy">Відгукнутися</HxButton>
+                        }
+                        else if (CurrentUserVacancyStatus == UserVacancyStatus.Applied || 
+                        CurrentUserVacancyStatus == UserVacancyStatus.Proposed)
+                        {
+                            <HxButton CssClass="mx-1" Color="ThemeColor.Primary" Icon="BootstrapIcon.PersonCheck" OnClick="RejectVacancy">Скасувати</HxButton>
+                        }
+                        @*<HxButton CssClass="mx-1"
+                    Color="ThemeColor.Primary"
+                    Outline=true
+                    Icon="BootstrapIcon.Heart">
+                    Зберегти
+                    </HxButton> *@
+                    </div>
+                </BodyTemplate>
+            </HxCard>
         </div>
+    </div>
 }
 else
 {
@@ -57,26 +69,66 @@ else
     private bool Downloading;
 
     private VacancyViewModel VacancyDetails { get; set; }
+    private VacancyService _vacancyService = new VacancyService();
+    private UserStorageService _userStorageService;
+    private UserViewModel _user;
+    private UserVacancyStatus CurrentUserVacancyStatus;
 
-    private HxModal ApplyOnVacancy;
-
-    // private async Task Handle
+    [Inject] protected IHxMessengerService Messenger { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        Downloading = true;
+        StartLoading();
 
+        _userStorageService = new UserStorageService(Storage);
+        _user = await _userStorageService.GetLoginnedUser();
         await GetVacancyDetails(VacancyId);
+        CurrentUserVacancyStatus = await _userStorageService.GetUserVacancyStatus(_user, VacancyDetails);
+        EndLoading();
+    }
 
+    private void StartLoading()
+    {
+        Downloading = true;
+    }
+
+    private void EndLoading()
+    {
         Downloading = false;
+    }
+
+    private async Task ApplyVacancy()
+    {
+        try
+        {
+            await _userStorageService.UserApplyOnVacancy(_user, VacancyDetails);
+            Messenger.AddInformation("Вакансія", "Успішно подано заявку!");
+            CurrentUserVacancyStatus = UserVacancyStatus.Applied;
+        }
+        catch (Exception ex)
+        {
+            Messenger.AddError("Вакансія", "Щось пішло не так!");
+        }
+    }
+
+    private async Task RejectVacancy()
+    {
+        try
+        {
+            await _userStorageService.ChangeUserVacancyStatus(_user, VacancyDetails, UserVacancyStatus.CandidateRejected);
+            Messenger.AddInformation("Вакансія", "Успішно скасовано заявку!");
+            CurrentUserVacancyStatus = UserVacancyStatus.CandidateRejected;
+        }
+        catch (Exception ex)
+        {
+            Messenger.AddError("Вакансія", "Щось пішло не так!");
+        }
     }
 
     private async Task GetVacancyDetails(int id)
     {
-        var response = await Http.GetAsync(VacancyGlobals.VacanyByIdUri + '/' + id);
+        var vacancyDetails = await _vacancyService.GetVacancyDetails(id);
 
-        var content = await response.Content.ReadFromJsonAsync<VacancyViewModel>();
-
-        VacancyDetails = content;
+        VacancyDetails = vacancyDetails;
     }
 }

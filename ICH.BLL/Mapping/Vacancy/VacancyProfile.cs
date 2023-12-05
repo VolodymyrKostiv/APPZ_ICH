@@ -17,6 +17,7 @@ namespace ICH.BLL.Mapping.Vacancy
             CreateMap<VacancySpecialCategories, VacancySpecialCategoriesDTO>().ReverseMap();
             CreateMap<WorkType, WorkTypeDTO>().ReverseMap();
             CreateMap<UserInfoSpecialCategories, UserInfoSpecialCategoriesDTO>().ReverseMap();
+            CreateMap<VacancyStatus, VacancyStatusDTO>().ReverseMap();
         }
     }
 }

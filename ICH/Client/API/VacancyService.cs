@@ -1,4 +1,5 @@
-﻿using ICH.Shared.ViewModels.Vacancy;
+﻿using ICH.Client.Enums;
+using ICH.Shared.ViewModels.Vacancy;
 
 namespace ICH.Client.API
 {
@@ -51,6 +52,18 @@ namespace ICH.Client.API
             var items = await GetItemsViaPost<IEnumerable<VacancyViewModel>>(VacancyGlobals.FilteredVacanciesUri, filters);
 
             return items;
+        }
+
+        public async Task<VacancyViewModel> GetVacancyDetails(int id)
+        {
+            var items = await GetItems<VacancyViewModel>(VacancyGlobals.VacanyByIdUri + '/' + id);
+
+            return items;
+        }
+
+        public async Task AddVacancy(VacancyViewModel vacancy)
+        {
+            //await Add
         }
     }
 }

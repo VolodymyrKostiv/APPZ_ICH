@@ -98,7 +98,7 @@ namespace ICH.BLL.Services.User
                         .ThenInclude(y => y.Location)
                     .Include(x => x.UserInfo)
                         .ThenInclude(y => y.SpecialCategories),
-                    predicate: x => x.UserType.Title == "Employee");
+                    predicate: x => x.UserType.UserTypeId == 3);
 
                 map = _mapper.Map<IEnumerable<UserDTO>>(users);
             }
@@ -124,7 +124,7 @@ namespace ICH.BLL.Services.User
                     .ThenInclude(y => y.Location)
                 .Include(x => x.UserInfo)
                     .ThenInclude(y => y.SpecialCategories),
-             predicate: x => x.UserType.Title == "Employee");
+             predicate: x => x.UserType.UserTypeId == 3);
 
             if (filters != null)
             {
@@ -209,6 +209,22 @@ namespace ICH.BLL.Services.User
                 predicate: x => x.Login == creds.UserName && x.Password == creds.Password);
 
             var map = _mapper.Map<UserDTO>(users);
+
+            return map;
+        }
+
+        public async Task UpdateUserAsync(UserDTO user)
+        {
+            var mappedUser = _mapper.Map<DAL.Entities.User.User>(user);
+
+            _repoWrapper.UserRepository.Update(mappedUser);
+        }
+
+        public async Task<IEnumerable<UserVacancyStatusDTO>> GetUserVacancyStatusesAsync()
+        {
+            var statuses = await _repoWrapper.UserVacanciesStatusRepository.GetAllAsync();
+
+            var map = _mapper.Map<IEnumerable<UserVacancyStatusDTO>>(statuses);
 
             return map;
         }

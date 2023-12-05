@@ -1,12 +1,14 @@
 ﻿@page "/vacancies"
 
 @using ICH.Client.API;
+@using ICH.Shared.ViewModels.User
 @using ICH.Shared.ViewModels.Vacancy;
 @using System.Text.Json;
 @using System.Text;
 @using System.Net.Mime;
 
 @inject HttpClient Http
+@inject ILocalStorageService Storage
 
 <style>
     .divBadge {
@@ -115,9 +117,22 @@
                                 <HxCard>
                                     <BodyTemplate>
                                         <HxCardTitle>
-                                            <HxNavLink CssClass="text-primary" Href="@(string.Concat("vacancydetails/", (vacancy.VacancyId.ToString())))">@vacancy.Title</HxNavLink>
-                                            </HxCardTitle>
-                                            <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
+                                            <div class="d-flex justify-content-between">
+                                                <div>
+                                                    <HxNavLink CssClass="text-primary" Href="@(string.Concat("vacancydetails/", (vacancy.VacancyId.ToString())))">@vacancy.Title</HxNavLink>
+                                                    </div>
+                                                    <div></div>
+                                                    <div>
+                                                    @if (SpecialCategoriesSuitableForUser(vacancy.SpecialCategories))
+                                                    {
+                                                        <HxTooltip Text="Рекомендована вакансія" Placement="TooltipPlacement.Bottom">
+                                                            <HxIcon Icon="BootstrapIcon.EmojiHeartEyes" />
+                                                        </HxTooltip>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </HxCardTitle>
+                                        <HxCardSubtitle>@vacancy.Salary UAH</HxCardSubtitle>
                                         <HxCardSubtitle class="mt-1">@vacancy.Company, @vacancy?.Location.Title, @vacancy?.EmploymentType.Title</HxCardSubtitle>
                                             <HxCardText>@vacancy.Description</HxCardText>
                                             @foreach (var badge in vacancy.SpecialCategories)
@@ -303,6 +318,9 @@ else
     }
 
     private VacancyService _vacancyService;
+    private UserStorageService _userStorageService;
+
+    private UserViewModel _user;
 
     protected override async Task OnInitializedAsync()
     {
@@ -310,6 +328,9 @@ else
 
         _vacancyService = new VacancyService();
 
+        _userStorageService = new UserStorageService(Storage);
+
+        await SetUser();
         await GetAllCategories();
         await GetAllSpecialCategories();
         await GetAllWorkTypes();
@@ -320,6 +341,23 @@ else
         base.OnInitialized();
 
         EndLoading();
+    }
+
+    private async Task SetUser()
+    {
+        var user = await _userStorageService.GetLoginnedUser();
+
+        _user = user;
+    }
+
+    private bool SpecialCategoriesSuitableForUser(IEnumerable<SpecialCategoryViewModel> categories)
+    {
+        if (_user != null && _user.UserInfo != null && _user.UserInfo.SpecialCategories != null &&
+            _user.UserInfo.SpecialCategories.Any() && categories != null && categories.Any())
+        {
+            return _user.UserInfo.SpecialCategories.Intersect(categories).Any();
+        }
+        return false;
     }
 
     private async Task OnSearchClicked()

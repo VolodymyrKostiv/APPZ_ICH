@@ -69,6 +69,24 @@ namespace ICH.Server.Controllers
             return Ok(mappedLocations);
         }
 
+        [HttpGet("VacancyStatuses")]
+        public async Task<IActionResult> GetVacancyStatuses()
+        {
+            var statuses = await _vacancyService.GetVacancyStatusesAsync();
+
+            var mappedStatuses = _mapper.Map<IEnumerable<VacancyStatusViewModel>>(statuses);
+
+            return Ok(mappedStatuses);
+        }
+
+        //[HttpPost("AddVacancy")]
+        //public async Task<IActionResult> AddVacancy([FromBody] VacancyViewModel vacancy)
+        //{
+        //    var mappedVacancy = _mapper.Map<VacancyDTO>(vacancy);
+
+            
+
+        //}
 
         /// <summary>
         /// Get all vacancies

@@ -37,7 +37,7 @@ namespace ICH.Client.API
                 var item = await _storage.GetItemAsync<T>(itemName);
                 return item;
             }
-
+            
             return default(T);
         }
 
@@ -48,6 +48,11 @@ namespace ICH.Client.API
             {
                 await _storage.RemoveItemAsync(itemName);
             }
+        }
+
+        protected async Task UpdateItem<T>(string itemName, T item)
+        {
+            await AddItem(itemName, item);
         }
     }
 }

@@ -13,7 +13,18 @@ namespace ICH.Shared.ViewModels.User
         public WorkTypeViewModel? WorkType { get; set; }
         public CategoryViewModel? Category { get; set; }
         public DateTime? CreationTime { get; set; }
-        public ICollection<UserViewModel> Users { get; set; }
+        //public ICollection<UserViewModel> Users { get; set; }
         public ICollection<SpecialCategoryViewModel>? SpecialCategories { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is UserInfoViewModel model &&
+                   UserInfoId == model.UserInfoId;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(UserInfoId);
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace ICH.BLL.Interfaces.Vacancy
         Task<IEnumerable<EmploymentTypeDTO>> GetEmploymentTypesAsync();
         Task<IEnumerable<VacancyDTO>> GetAllVacanciesAsync();
         Task<IEnumerable<VacancyDTO>> GetFilteredVacanciesAsync(VacancySearchFiltersDTO filters);
+        Task<IEnumerable<VacancyStatusDTO>> GetVacancyStatusesAsync();
+        Task AddVacancyAsync(VacancyDTO vacancy);
         Task<VacancyDTO> GetVacancyByIdAsync(int id);
     }
 }

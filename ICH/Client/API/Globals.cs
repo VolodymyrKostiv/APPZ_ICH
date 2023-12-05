@@ -16,6 +16,8 @@
         public static string LocationsUri { get; } = VacanciesUri + "/Locations";
         public static string WorkTypesUri { get; } = VacanciesUri + "/WorkTypes";
         public static string EmploymentTypesUri { get; } = VacanciesUri + "/EmploymentTypes";
+        public static string VacancyStatusesUri { get; } = VacanciesUri + "/VacancyStatuses";
+        public static string AddVacancy { get; } = VacanciesUri + "/AddVacancy";
         public static string VacanyByIdUri { get; } = VacanciesUri;
     }
 
@@ -25,6 +27,8 @@
         public static string AllTRPsUri { get; } = TRPsUri + "/AllTRPs";
         public static string FilteredTRPsUri { get; } = TRPsUri + "/FilteredTRPs";
         public static string LoginUserUri { get; } = TRPsUri + "/LoginUser";
+        public static string UpdateUserUri { get; } = TRPsUri + "/UpdateUser";
+        public static string UserVacancyStatusesUri { get; } = TRPsUri + "/UserVacancyStatuses";
         public static string CandidateUri { get; } = TRPsUri; 
     }
 }

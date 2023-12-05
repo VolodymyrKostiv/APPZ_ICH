@@ -2,9 +2,7 @@
 using ICH.BLL.DTOs.User;
 using ICH.BLL.Interfaces.User;
 using ICH.Shared.ViewModels.User;
-using ICH.Shared.ViewModels.Vacancy;
 using Microsoft.AspNetCore.Mvc;
-using NLog.Filters;
 
 namespace ICH.Server.Controllers
 {
@@ -35,6 +33,17 @@ namespace ICH.Server.Controllers
 
             return Ok(mappedVacancies);
         }
+
+        [HttpGet("UserVacancyStatuses")]
+        public async Task<IActionResult> GetAllUserVacancyStatuses()
+        {
+            var userVacancyStatuses = await _userService.GetUserVacancyStatusesAsync();
+
+            var mappedVacancies = _mapper.Map<IEnumerable<UserVacanciesViewModel>>(userVacancyStatuses);
+
+            return Ok(mappedVacancies);
+        }
+
 
         /// <summary>
         /// Get filtered vacancies
@@ -79,5 +88,29 @@ namespace ICH.Server.Controllers
 
             return Ok(mappedUsers);
         }
+
+        [HttpPut("UpdateUser")]
+        public async Task<IActionResult> UpdateUser([FromBody] UserViewModel user)
+        {
+            if (user == null)
+            {
+                return BadRequest("Invalid model");
+            }
+
+            try
+            {
+                var mappedUser = _mapper.Map<UserDTO>(user);
+
+                await _userService.UpdateUserAsync(mappedUser);
+
+                return Ok("Resource updated successfully");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+
     }
 }

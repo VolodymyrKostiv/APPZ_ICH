@@ -54,22 +54,31 @@ else
     private bool Downloading;
 
     private UserViewModel UserDetails { get; set; }
+    private UserService _userService = new UserService();
 
     protected override async Task OnInitializedAsync()
     {
-        Downloading = true;
+        StartLoading();
 
-        await GetVacancyDetails(UserId);
+        await GetCandidateDetails(UserId);
 
-        Downloading = false;
+        EndLoading();
     }
 
-    private async Task GetVacancyDetails(int id)
+    private async Task GetCandidateDetails(int id)
     {
-        var response = await Http.GetAsync(TRPGlobals.CandidateUri + '/' + id);
+        var details = await _userService.GetUserDetails(id);
 
-        var content = await response.Content.ReadFromJsonAsync<UserViewModel>();
+        UserDetails = details;
+    }
 
-        UserDetails = content;
+    private void StartLoading()
+    {
+        Downloading = true;
+    }
+
+    private void EndLoading()
+    {
+        Downloading = false;
     }
 }

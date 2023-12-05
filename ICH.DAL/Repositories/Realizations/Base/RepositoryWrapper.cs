@@ -11,12 +11,15 @@ namespace ICH.DAL.Repositories.Realizations.Base
         private readonly ICHDBContext _dbContext;
 
         private IUserRepository _user;
+        private IUserVacanciesRepository _userVacancies;
+        private IUserVacanciesStatusRepository _userVacanciesStatus;
         private IVacancyRepository _vacancy;
         private ICategoryRepository _category;
         private IEmploymentTypeRepository _employmentType;
         private ILocationRepository _location;
         private ISpecialCategoryRepository _specialCategory;
         private IWorkTypeRepository _workType;
+        private IVacancyStatusRepository _vacancyStatus;
 
         public IUserRepository UserRepository
         {
@@ -28,6 +31,32 @@ namespace ICH.DAL.Repositories.Realizations.Base
                 }
 
                 return _user;
+            }
+        }
+
+        public IUserVacanciesRepository UserVacanciesRepository
+        {
+            get
+            {
+                if (_userVacancies == null)
+                {
+                    _userVacancies = new UserVacanciesRepository(_dbContext);
+                }
+
+                return _userVacancies;
+            }
+        }
+
+        public IUserVacanciesStatusRepository UserVacanciesStatusRepository
+        {
+            get
+            {
+                if (_userVacanciesStatus == null)
+                {
+                    _userVacanciesStatus = new UserVacanciesStatusRepository(_dbContext);
+                }
+
+                return _userVacanciesStatus;
             }
         }
 
@@ -107,6 +136,20 @@ namespace ICH.DAL.Repositories.Realizations.Base
                 return _workType;
             }
         }
+
+        public IVacancyStatusRepository VacancyStatusRepository
+        {
+            get
+            {
+                if (_vacancyStatus == null)
+                {
+                    _vacancyStatus = new VacancyStatusRepository(_dbContext);
+                }
+
+                return _vacancyStatus;
+            }
+        }
+
 
         public RepositoryWrapper(ICHDBContext ICHDBContext)
         {

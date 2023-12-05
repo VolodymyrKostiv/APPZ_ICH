@@ -1,0 +1,253 @@
+﻿@page "/createvacancy"
+
+@using ICH.Client.API
+@using ICH.Shared.ViewModels.User
+@using ICH.Shared.ViewModels.Vacancy
+@using System.Text.Json
+
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService Storage
+
+<style>
+    .divBadge {
+        font-size: 14px;
+    }
+</style>
+
+@if (!Downloading)
+{
+    <div class="col-6 offset-3">
+        <div class="row">
+            <h2 class="mt-2">Створення Вакансії</h2>
+            <HxCard CssClass="p-0 mt-2">
+                <HeaderTemplate>
+                    <div style="padding: 10px;">
+                        <HxInputText InputGroupStartText="Назва" @bind-Value="VacancyTitle"></HxInputText>
+                    </div>
+                </HeaderTemplate>
+                <BodyTemplate>
+                    <HxSelect Data="@Locations"
+                              CssClass="m-1"
+                              Nullable="true"
+                              NullText="Вся Україна"
+                              @bind-Value="@VacancyLocation"
+                              InputGroupStartText="Місто"
+                              TItem="LocationViewModel"
+                              TValue="LocationViewModel"
+                              TextSelector="@(p => p.Title)"
+                              ValueSelector="@(p => p)" />
+
+                    <HxSelect Data="@EmploymentTypes"
+                              CssClass="m-1"
+                              Nullable="true"
+                              NullText="Будь-яка зайнятість"
+                              @bind-Value="VacancyEmploymentType"
+                              InputGroupStartText="Тип Зайнятості"
+                              TItem="EmploymentTypeViewModel"
+                              TValue="EmploymentTypeViewModel"
+                              TextSelector="@(p => p.Title)"
+                              ValueSelector="@(p => p)" />
+
+                    <HxSelect Data="@WorkTypes"
+                              CssClass="m-1"
+                              Nullable="true"
+                              NullText="Будь-який Тип Роботи"
+                              @bind-Value="VacancyWorkType"
+                              InputGroupStartText="Тип Роботи"
+                              TItem="WorkTypeViewModel"
+                              TValue="WorkTypeViewModel"
+                              TextSelector="@(p => p.Title)"
+                              ValueSelector="@(p => p)" />
+
+                    <HxSelect Data="@Categories"
+                              CssClass="m-1"
+                              Nullable="true"
+                              NullText="Будь-яка Категорія"
+                              @bind-Value="VacancyCategory"
+                              InputGroupStartText="Категорія роботи"
+                              TItem="CategoryViewModel"
+                              TValue="CategoryViewModel"
+                              TextSelector="@(p => p.Title)"
+                              ValueSelector="@(p => p)" />
+
+                    <HxMultiSelect Data="@SpecialCategories"
+                                   CssClass="m-1"
+                                   @bind-Value="VacancySpecialCategories"
+                                   InputGroupStartText="Особливі Категорії"
+                                   TItem="SpecialCategoryViewModel"
+                                   TValue="SpecialCategoryViewModel"
+                                   TextSelector="@(p => p.Title)"
+                                   ValueSelector="@(p => p)" />
+
+                    <HxCardTitle CssClass="mt-3 mx-2">Опис</HxCardTitle>
+
+                    <HxInputTextArea @bind-Value="VacancyDescription" CssClass="mx-2" />
+                    <div class="flex-row mt-4">
+                        <HxButton CssClass="mx-1"
+                                  Icon="BootstrapIcon.Save"
+                                  Color="ThemeColor.Success"
+                                  Text="Зберегти"
+                                  OnClick="AddNewVacancy" />
+                        <HxButton CssClass="mx-1"
+                                  Icon="BootstrapIcon.XCircle"
+                                  Color="ThemeColor.Danger"
+                                  Text="Скасувати"
+                                  OnClick="CancelEditing" />
+                    </div>
+                </BodyTemplate>
+            </HxCard>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row justify-content-center align-items-center mt-5">
+        <div class="col-4 justify-content-center align-items-center mt-5">
+            <div class="row justify-content-center mt-5">
+                <HxSpinner Color="ThemeColor.Primary" />
+            </div>
+        </div>
+    </div>
+}
+
+@code
+{
+    private bool Downloading;
+    private bool IsUserLoggined;
+    private bool IsEditForm;
+
+    private UserService _userService;
+    private VacancyService _vacancyService;
+    private UserStorageService _userStorageService;
+
+    private VacancyViewModel Vacancy { get; set; }
+    private UserViewModel User { get; set; }
+
+    [Inject] protected IHxMessengerService Messenger { get; set; }
+
+    private string VacancyTitle;
+    private int VacancySalary;
+    private LocationViewModel VacancyLocation;
+    private CategoryViewModel VacancyCategory;
+    private List<SpecialCategoryViewModel> VacancySpecialCategories;
+    private EmploymentTypeViewModel VacancyEmploymentType;
+    private WorkTypeViewModel VacancyWorkType;
+    private string VacancyDescription;
+
+    private List<LocationViewModel> Locations { get; set; }
+    private List<CategoryViewModel> Categories { get; set; }
+    private List<SpecialCategoryViewModel> SpecialCategories { get; set; }
+    private List<EmploymentTypeViewModel> EmploymentTypes { get; set; }
+    private List<WorkTypeViewModel> WorkTypes { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        StartLoading();
+
+        _userStorageService = new UserStorageService(Storage);
+        _userService = new UserService();
+
+        var user = await _userStorageService.GetLoginnedUser();
+        User = user;
+
+        _vacancyService = new VacancyService();
+
+        await GetAllCategories();
+        await GetAllSpecialCategories();
+        await GetAllWorkTypes();
+        await GetAllLocations();
+        await GetAllEmploymentTypes();
+
+        EndLoading();
+    }
+
+    private async Task AddNewVacancy()
+    {
+        StartLoading();
+
+        var vacancy = new VacancyViewModel()
+            {
+                Title = VacancyTitle,
+                Salary = VacancySalary,
+                User = User,
+                WorkType = VacancyWorkType,
+                Category = VacancyCategory,
+                SpecialCategories = VacancySpecialCategories,
+                EmploymentType = VacancyEmploymentType,
+                Location = VacancyLocation,
+            };
+
+        try
+        {
+            await _userStorageService.AddVacancy(vacancy);
+            Messenger.AddInformation("Додавання вакансії", "Вакансію успішно додано!");
+            NavigationManager.NavigateTo("/employervacs");
+        }
+        catch (Exception ex)
+        {
+            Messenger.AddError("Оновлення Профілю", "Щось пішло не так!");
+        }
+
+        EndLoading();
+    }
+
+    private async Task CancelEditing()
+    {
+        StartLoading();
+
+        EndLoading();
+    }
+
+    private async Task<UserViewModel> GetCandidateDetails()
+    {
+        var user = await _userStorageService.GetLoginnedUser();
+
+        return user;
+    }
+
+    private async Task GetAllCategories()
+    {
+        var categories = await _vacancyService.GetAllCategories();
+
+        Categories = categories.ToList();
+    }
+
+    private async Task GetAllSpecialCategories()
+    {
+        var specialCategories = await _vacancyService.GetAllSpecialCategories();
+
+        SpecialCategories = specialCategories.ToList();
+    }
+
+    private async Task GetAllLocations()
+    {
+        var locations = await _vacancyService.GetAllLocations();
+
+        Locations = locations.ToList();
+    }
+
+    private async Task GetAllEmploymentTypes()
+    {
+        var employmentTypes = await _vacancyService.GetAllEmploymentTypes();
+
+        EmploymentTypes = employmentTypes.ToList();
+    }
+
+    private async Task GetAllWorkTypes()
+    {
+        var workTypes = await _vacancyService.GetAllWorkTypes();
+
+        WorkTypes = workTypes.ToList();
+    }
+
+    private void StartLoading()
+    {
+        Downloading = true;
+    }
+
+    private void EndLoading()
+    {
+        Downloading = false;
+    }
+}

@@ -1,5 +1,4 @@
 ﻿using ICH.Shared.ViewModels.User;
-using ICH.Shared.ViewModels.Vacancy;
 
 namespace ICH.Client.API
 {
@@ -22,6 +21,20 @@ namespace ICH.Client.API
         public async Task<UserViewModel> LoginUser(UserLoginCredentialsViewModel creds)
         {
             var item = await GetItemsViaPost<UserViewModel>(TRPGlobals.LoginUserUri, creds);
+
+            return item;
+        }
+
+        public async Task<UserViewModel> GetUserDetails(int id)
+        {
+            var item = await GetItems<UserViewModel>(TRPGlobals.CandidateUri + '/' + id);
+
+            return item;
+        }
+
+        public async Task<bool> UpdateUserData(UserViewModel user)
+        {
+            var item = await UpdateItem<UserViewModel>(TRPGlobals.UpdateUserUri, user);
 
             return item;
         }

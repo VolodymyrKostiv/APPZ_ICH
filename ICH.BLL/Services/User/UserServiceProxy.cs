@@ -54,5 +54,15 @@ namespace ICH.BLL.Services.User
         {
             throw new NotImplementedException();
         }
+
+        public Task<IEnumerable<UserVacancyStatusDTO>> GetUserVacancyStatusesAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UpdateUserAsync(UserDTO user)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -11,6 +11,8 @@ namespace ICH.BLL.Mapping.User
             CreateMap<ICH.DAL.Entities.User.User, UserDTO>().ReverseMap();
             CreateMap<UserInfo, UserInfoDTO>().ReverseMap();
             CreateMap<UserType, UserTypeDTO>().ReverseMap();
+            CreateMap<UserVacancyStatus, UserVacancyStatusDTO>().ReverseMap();
+            CreateMap<UserVacancies, UserVacanciesDTO>().ReverseMap();
         }
     }
 }

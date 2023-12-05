@@ -1,4 +1,5 @@
-﻿using System.Net.Mime;
+﻿using ICH.Shared.ViewModels.User;
+using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
 
@@ -48,14 +49,46 @@ namespace ICH.Client.API
             {
                 var content = await response.Content.ReadAsStringAsync();
 
-                var vacancies = JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                var items = JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                return vacancies;
+                return items;
             }
             else
             {
                 return default(T);
             }
+        }
+
+        protected async Task<bool> AddItem<T>(string uri, T item)
+        {
+            var jsonRequest = JsonSerializer.Serialize(item);
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                RequestUri = new Uri(uri),
+                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
+            };
+
+            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+
+            return response.IsSuccessStatusCode;
+        }
+
+        protected async Task<bool> UpdateItem<T>(string uri, T item)
+        {
+            var jsonRequest = JsonSerializer.Serialize(item);
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Put,
+                RequestUri = new Uri(uri),
+                Content = new StringContent(content: jsonRequest, encoding: Encoding.UTF8, mediaType: MediaTypeNames.Application.Json),
+            };
+
+            var response = await _httpClient.SendAsync(request).ConfigureAwait(false);
+
+            return response.IsSuccessStatusCode;
         }
     }
 }

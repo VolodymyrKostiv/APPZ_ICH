@@ -4,11 +4,11 @@ namespace ICH.Client.Enums
 {
     public enum UserType
     {
-        [Description("Admin")]
+        [Description("Адмін")]
         Admin = 1,
-        [Description("Employer")]
+        [Description("Роботодавець")]
         Employer = 2,
-        [Description("Candidate")]
+        [Description("Кандидат")]
         Candidate = 3
     }
 }

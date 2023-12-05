@@ -5,12 +5,13 @@
 @inject ILocalStorageService Storage
 
 <HxNavbar ColorScheme="NavbarColorScheme.Dark" Color="ThemeColor.Primary">
-    <HxNavbarBrand>ICH.UA для Роботадавців</HxNavbarBrand>
+    <HxNavbarBrand>ICH.UA для Роботодавців</HxNavbarBrand>
     <HxNavbarToggler />
     <HxNavbarCollapse>
         <HxNav CssClass="me-auto mb-2 mb-lg-0">
             <HxNavLink Href="/candidates">Знайти Кандидата</HxNavLink>
             <HxNavLink Href="/createvacancy">Розмістити Вакансію</HxNavLink>
+            <HxNavLink Href="/employervacs">Розміщені Вакансії</HxNavLink>
             <HxNavLink Href="/vacancies">Кандидату ></HxNavLink>
         </HxNav>
         <div class="d-flex">
@@ -25,11 +26,11 @@
             else
             {
                 <HxDropdown>
-                    <HxDropdownToggleElement ElementName="div" CssClass="bg-primary p-3 text-white" role="button">
+                    <HxDropdownToggleElement ElementName="div" CssClass="bg-primary p-1 text-white me-2" role="button">
                         <HxIcon Icon="BootstrapIcon.PersonFill" />
                     </HxDropdownToggleElement>
                     <HxDropdownMenu Alignment="DropdownMenuAlignment.End">
-                        <HxDropdownItemNavLink Href="/components/HxDropdown">Link with Href</HxDropdownItemNavLink>
+                        <HxDropdownItemNavLink Href="/userinfo">Профіль</HxDropdownItemNavLink>
                         <HxDropdownDivider />
                         <HxDropdownItem OnClick="OnLogin">
                             <div class="flex">

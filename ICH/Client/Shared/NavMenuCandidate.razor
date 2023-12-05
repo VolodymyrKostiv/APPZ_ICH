@@ -10,7 +10,7 @@
     <HxNavbarCollapse>
         <HxNav CssClass="me-auto mb-2 mb-lg-0">
             <HxNavLink Href="/vacancies">Знайти Вакансію</HxNavLink>
-            <HxNavLink Href="/createcv">Розмістити Резюме</HxNavLink>
+            <HxNavLink Href="/userinfo">Резюме</HxNavLink>
             <HxNavLink Href="/candidates">Роботодавцю ></HxNavLink>
         </HxNav>
         <div class="d-flex">
@@ -25,11 +25,11 @@
             else
             {
                 <HxDropdown>
-                    <HxDropdownToggleElement ElementName="div" CssClass="bg-primary p-3 text-white" role="button">
+                    <HxDropdownToggleElement ElementName="div" CssClass="bg-primary p-1 text-white me-2" role="button">
                         <HxIcon Icon="BootstrapIcon.PersonFill" />
                     </HxDropdownToggleElement>
                     <HxDropdownMenu Alignment="DropdownMenuAlignment.End">
-                        <HxDropdownItemNavLink Href="/components/HxDropdown">Link with Href</HxDropdownItemNavLink>
+                        <HxDropdownItemNavLink Href="/userinfo">Профіль</HxDropdownItemNavLink>
                         <HxDropdownDivider />
                         <HxDropdownItem OnClick="OnLogin">
                             <div class="flex">
